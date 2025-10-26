@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CSV Button Modal Demo (Windows Style)</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    background: #eaeaea;
+  }
+
+  h2 {
+    margin-bottom: 10px;
+  }
+
+  #buttons {
+    margin-top: 20px;
+  }
+
+  button {
+    margin: 8px;
+    padding: 10px 22px;
+    font-size: 1rem;
+    border: 1px solid #0078d7;
+    border-radius: 6px;
+    background-color: #0078d7;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  button:hover {
+    background-color: #005fa3;
+  }
+
+  #status {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #333;
+  }
+
+  /* Modal backdrop */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.4);
+  }
+
+  /* Modal box styled like Windows dialog */
+  .modal-content {
+    background-color: #f9f9f9;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 900px; /* Wider for easier reading */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+
+  /* Title bar like Windows dialog */
+  .modal-header {
+    background: linear-gradient(to bottom, #0078d7, #005fa3);
+    color: white;
+    padding: 10px 15px;
+    font-size: 1.1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: white;
+    font-size: 0.95em;
+    white-space: pre-wrap; /* preserves newlines */
+  }
+
+  .close {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0 8px;
+    border-radius: 3px;
+  }
+
+  .close:hover {
+    background-color: rgba(255,255,255,0.3);
+  }
+</style>
+</head>
+<body>
+  <h2>Import CSV File and Create Buttons</h2>
+  <input type="file" id="fileInput" accept=".csv" />
+  <div id="status">Please choose a CSV file with two columns (item, description).</div>
+  <div id="buttons"></div>
+
+  <!-- Modal -->
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modalTitle">Item Info</span>
+        <span id="closeModal" class="close">&times;</span>
+      </div>
+      <div id="modalText" class="modal-body"></div>
+    </div>
+  </div>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const buttonsDiv = document.getElementById('buttons');
+  const modal = document.getElementById('infoModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalText = document.getElementById('modalText');
+  const closeModal = document.getElementById('closeModal');
+  const status = document.getElementById('status');
+  let dataMap = {};
+
+  fileInput.addEventListener('change', handleFile);
+
+  function handleFile(event) {
+    const file = event.target.files[0];
+    if (!file) {
+      status.textContent = "No file selected.";
+      return;
+    }
+
+    status.textContent = "Reading file...";
+
+    Papa.parse(file, {
+      complete: function(results) {
+        const rows = results.data.filter(r => r.length >= 2 && r[0].trim() !== "");
+        if (!rows.length) {
+          status.textContent = "⚠️ No valid data found (need at least 2 columns).";
+          return;
+        }
+
+        dataMap = {};
+        buttonsDiv.innerHTML = "";
+
+        rows.forEach(row => {
+          const key = row[0].trim();
+          const value = row[1].trim();
+          dataMap[key] = value;
+          const btn = document.createElement('button');
+          btn.textContent = key;
+          btn.addEventListener('click', () => showModal(key));
+          buttonsDiv.appendChild(btn);
+        });
+
+        status.textContent = `✅ Loaded ${rows.length} item(s).`;
+      },
+      error: function(err) {
+        console.error(err);
+        status.textContent = "❌ Failed to parse CSV.";
+      },
+      skipEmptyLines: true
+    });
+  }
+
+  function showModal(key) {
+    modalTitle.textContent = key;
+    const rawText = dataMap[key] || "(No text found)";
+
+    const formatted = rawText
+      .replace(/\\n/g, '\n')  // interpret \n literally
+      .replace(/\r/g, '');    // remove carriage returns
+
+    modalText.innerHTML = formatted;
+    modal.style.display = "block";
+  }
+
+  closeModal.onclick = () => modal.style.display = "none";
+  window.onclick = (event) => {
+    if (event.target === modal) modal.style.display = "none";
+  };
+</script>
+</body>
+</html>

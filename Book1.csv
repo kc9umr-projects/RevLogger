@@ -1,0 +1,38 @@
+﻿Open,"“Attention all Amateurs! This is (your callsign), interrupting regular traffic on this repeater to activate a Parker County Office of Emergency Management SKYWARN Weather Net, in response to a National Weather Service (warning type) which was issued at (time of warning) until (end time of warning). <br>
+(Give an overview of the warning. Try reading the warning itself if you’re not sure what to say)
+https://www.weather.gov/alerts
+<br>
+This will be a Parker County OEM Skywarn directed net, operated exclusively by Parker County RACES net controllers. Please direct your messages to and through this Net Control station. <br>
+Please limit all traffic to weather reporting and other emergency traffic. 
+<br>
+At the request of NWS Fort Worth - This Net welcomes any and all Weather reports from any licensed amateur radio operator.  
+<br>
+Any and all weather reports, as far West of the Weatherford 147.040 repeater as possible, are requested by the NWS as highly and greatly needed. 
+<br>
+The millions of residents to the East of Parker County are dependent on early signs of increasing weather risks and early warnings of severe weather approaching from the West. 
+<br>
+If you are located to the West, South West or North West of the 147.040 repeater near Peaster, please report what you can when weather watches and warnings are active.
+<br>
+Parker County OEM, the Parker County RACES team, the NWS, and millions of your fellow Texans thank you in advance. 
+<br>
+Please advise if you are a Weather Service Trained SKYWARN Spotter (pause for repeater reset).
+<br>
+Please refrain from broadcasting without a weather report or emergency traffic. This can prevent actual weather reports from being heard. Call sign check-ins without a weather report are not requested or needed at this time for this directed net.
+<br>
+The National Weather Service asks for all reports and locations of the following:
+•	Cloud rotation or lowering
+•	Hail three-quarter inch or larger in diameter (penny size or larger)
+•	Measured or estimated wind speeds 50 miles per hour or greater 
+•	More than six inches of flood water, or 
+•	Damage caused by the storm including wind damage 
+<br>
+Should this repeater fail during the storm, this weather net will move to 443.800 MHz CTCSS Tone 110.9  + 5 MHz). Should that repeater fail as well, emergency operations will be conducted on 146.580 Mhz FM Simplex. Operations on Simplex means there is no repeater, no offset and no tone. Be aware that HTs and low power stations might not be heard on Simplex.  This is (your callsign) standing by for any reports.”
+<br>
+“Is there a National Weather Service station currently monitoring?” (note the station in your log).  
+(over)
+<br>
+"
+Periodic,"“This is (your callsign) Net Control for the current Parker County OEM SKYWARN Weather Net. 
+The National Weather Service has issued a (warning type) at (start time of warning) until (end time of warning).  Please come now with your Call Sign slowly and phonetically if you have a report.”"
+Pause,"“The warning that caused the activation of this Parker County OEM SKYWARN net has been allowed to expire, however there is additional weather expected in (rough time estimate). At this time, I am pausing the SKYWARN Weather Net. Please limit traffic on the repeater as the SKYWARN Weather Net may resume unexpectedly. Thank you for your participation and reports!  (your callsign) monitoring for Parker County OEM.”"
+Close,"“This is (your callsign). At this time, the National Weather Service has allowed the last remaining warning to expire and there is no remaining significant weather in the Parker County area. I will be closing the SKYWARN Weather Net and returning this repeater back to normal amateur use. I will stay on this frequency for additional damage reports as available. Thank you very much for reporting ground truth and assisting the National Weather Service and SKYWARN operations. This is (your callsign) returning this repeater to normal traffic and monitoring.”"
