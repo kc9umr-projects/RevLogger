@@ -1,0 +1,232 @@
+<!-- simple-speech-to-text.html
+A single-file speech-to-text demo for Chrome using the Web Speech API with microphone selection and live volume meter.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Speech → Text with Mic Selection & Volume Meter</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;line-height:1.4}
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:#f7fafc}
+    .card{width:720px;max-width:96vw;background:white;border-radius:12px;box-shadow:0 6px 20px rgba(10,20,30,0.08);padding:20px}
+    h1{margin:0 0 8px;font-size:20px}
+    p.lead{margin:0 0 16px;color:#475569}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    button{padding:10px 14px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer}
+    button.primary{background:#0ea5a4;color:white;border:none}
+    button.danger{background:#ef4444;color:white;border:none}
+    select,input[type=text]{padding:10px;border-radius:8px;border:1px solid #e2e8f0}
+    #transcript{min-height:160px;border-radius:8px;padding:12px;border:1px dashed #cbd5e1;background:#fbfdff;white-space:pre-wrap;overflow:auto}
+    #meter{width:100%;height:12px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin-top:6px}
+    #meterFill{height:100%;width:0;background:#0ea5a4;transition:width 0.1s linear}
+    footer{margin-top:12px;color:#64748b;font-size:13px}
+    .status{font-weight:600;margin-left:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Speech → Text (Mic Select + Meter)</h1>
+    <p class="lead">Choose your microphone and speak. Watch your voice level live!</p>
+
+    <div class="controls">
+      <button id="startBtn" class="primary">Start</button>
+      <button id="stopBtn">Stop</button>
+      <button id="clearBtn">Clear</button>
+      <button id="copyBtn">Copy</button>
+      <button id="downloadBtn">Download .txt</button>
+
+      <label for="lang">Language</label>
+      <select id="lang">
+        <option value="en-US">English (US)</option>
+        <option value="en-GB">English (UK)</option>
+        <option value="es-ES">Español (ES)</option>
+        <option value="fr-FR">Français (FR)</option>
+        <option value="de-DE">Deutsch (DE)</option>
+      </select>
+
+      <label for="interim">Interim</label>
+      <select id="interim">
+        <option value="true">On</option>
+        <option value="false">Off</option>
+      </select>
+
+      <label for="micSelect">Microphone</label>
+      <select id="micSelect"></select>
+
+      <span class="status" id="status">Idle</span>
+    </div>
+
+    <div id="meter"><div id="meterFill"></div></div>
+
+    <div id="transcript" contenteditable="true" aria-label="Transcript" role="textbox"></div>
+
+    <footer>
+      Tip: Chrome requires HTTPS or localhost for mic permissions.
+    </footer>
+  </div>
+
+  <script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const transcriptEl = document.getElementById('transcript');
+    const statusEl = document.getElementById('status');
+    const langSelect = document.getElementById('lang');
+    const interimSelect = document.getElementById('interim');
+    const micSelect = document.getElementById('micSelect');
+    const meterFill = document.getElementById('meterFill');
+
+    let recognition;
+    let finalText = '';
+    let currentStream;
+    let audioContext;
+    let analyser;
+    let dataArray;
+
+    if (!SpeechRecognition) {
+      statusEl.textContent = 'Web Speech API not supported in this browser.';
+      startBtn.disabled = true;
+      stopBtn.disabled = true;
+    }
+
+    async function loadMicrophones() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const mics = devices.filter(d => d.kind === 'audioinput');
+        micSelect.innerHTML = '';
+        for (const mic of mics) {
+          const opt = document.createElement('option');
+          opt.value = mic.deviceId;
+          opt.textContent = mic.label || `Microphone ${mic.deviceId}`;
+          micSelect.appendChild(opt);
+        }
+      } catch (err) {
+        console.error('Error listing microphones', err);
+      }
+    }
+
+    async function getMicStream(deviceId) {
+      if (currentStream) {
+        currentStream.getTracks().forEach(t => t.stop());
+      }
+      const constraints = { audio: { deviceId: deviceId ? { exact: deviceId } : undefined } };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      startVolumeMeter(stream);
+      return stream;
+    }
+
+    function startVolumeMeter(stream) {
+      if (audioContext) audioContext.close();
+      audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      source.connect(analyser);
+      updateMeter();
+    }
+
+    function updateMeter() {
+      requestAnimationFrame(updateMeter);
+      if (!analyser) return;
+      analyser.getByteTimeDomainData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) {
+        const val = (dataArray[i] - 128) / 128;
+        sum += val * val;
+      }
+      const rms = Math.sqrt(sum / dataArray.length);
+      const level = Math.min(1, rms * 4);
+      meterFill.style.width = (level * 100) + '%';
+    }
+
+    function createRecognition() {
+      recognition = new SpeechRecognition();
+      recognition.lang = langSelect.value || 'en-US';
+      recognition.interimResults = interimSelect.value === 'true';
+      recognition.maxAlternatives = 1;
+      recognition.continuous = true;
+
+      recognition.onstart = () => {
+        statusEl.textContent = 'Listening...';
+        startBtn.disabled = true;
+      };
+      recognition.onerror = e => {
+        console.error('SpeechRecognition error', e);
+        statusEl.textContent = 'Error: ' + (e.error || 'unknown');
+      };
+      recognition.onend = () => {
+        statusEl.textContent = 'Stopped';
+        startBtn.disabled = false;
+      };
+      recognition.onresult = e => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          const transcript = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalText += transcript + '\n';
+          else interim += transcript;
+        }
+        transcriptEl.textContent = finalText + interim;
+      };
+      return recognition;
+    }
+
+    startBtn.addEventListener('click', async () => {
+      try {
+        const deviceId = micSelect.value;
+        currentStream = await getMicStream(deviceId);
+        if (!recognition) createRecognition();
+        recognition.lang = langSelect.value;
+        recognition.interimResults = interimSelect.value === 'true';
+        finalText = transcriptEl.textContent || '';
+        recognition.start();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Failed to start';
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if (recognition) recognition.stop();
+      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+      meterFill.style.width = '0%';
+      if (audioContext) audioContext.close();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      finalText = '';
+      transcriptEl.textContent = '';
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(transcriptEl.textContent || '');
+        statusEl.textContent = 'Copied';
+        setTimeout(() => { statusEl.textContent = 'Idle'; }, 1200);
+      } catch (e) { statusEl.textContent = 'Copy failed'; }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([transcriptEl.textContent || ''], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'transcript.txt';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    transcriptEl.addEventListener('input', () => { finalText = transcriptEl.textContent; });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && recognition) recognition.stop(); });
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(loadMicrophones);
+    navigator.mediaDevices.addEventListener('devicechange', loadMicrophones);
+  </script>
+</body>
+</html>
