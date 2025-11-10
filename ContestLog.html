@@ -1,0 +1,3074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KC9UMR Log</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 15px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        h1 { font-size: 1.8em; }
+        h2 { font-size: 1.4em; }
+        h3 { font-size: 1.1em; margin-right: 10px; display: inline-block; }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .controls, .output {
+            margin-top: 15px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fcfcfc;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 15px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        button:hover:not(:disabled) {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            color: #666;
+        }
+        #connectButton { background-color: #28a745; color: white; }
+        #connectButton:hover:not(:disabled) { background-color: #218838; }
+        #disconnectButton { background-color: #dc3545; color: white; }
+        #disconnectButton:hover:not(:disabled) { background-color: #c82333; }
+        .action-button { background-color: #007bff; color: white; }
+        .action-button:hover:not(:disabled) { background-color: #0056b3; }
+        #logQSOButton { background-color: #6c757d; color: white; }
+        #logQSOButton:hover:not(:disabled) { background-color: #5a6268; }
+        #downloadLogButton { background-color: #17a2b8; color: white; }
+        #downloadLogButton:hover:not(:disabled) { background-color: #138496; }
+        #exportCabrilloButton { background-color: #ffc107; color: #333; }
+        #exportCabrilloButton:hover:not(:disabled) { background-color: #e0a800; }
+
+        input[type="number"], select {
+            padding: 7px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            width: 140px;
+        }
+        input[type="text"] {
+            padding: 7px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+            width: 120px;
+        }
+        textarea {
+            width: calc(100% - 20px);
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            background-color: #e9ecef;
+            resize: vertical;
+        }
+        #statusArea {
+            margin-top: 5px; /* Adjusted margin */
+            margin-bottom: 15px; /* Adjusted margin */
+            padding: 8px;
+            background-color: #eaf6ff;
+            border: 1px solid #a8d5ff;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #0056b3;
+            font-size: 0.95em;
+        }
+        .inline-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .inline-group > label {
+            margin-right: 5px;
+            min-width: 60px;
+        }
+        /* Adjusted .dvr-slot-group for compactness */
+        .dvr-slot-group {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping of columns */
+            gap: 5px; /* Reduced gap between columns */
+            margin-bottom: 10px; /* Reduced margin */
+            padding: 0px; /* Reduced padding */
+            border: none; /* Removed border */
+            background-color: transparent; /* Transparent background */
+        }
+        .dvr-slot-group h3 {
+            margin: 0;
+            flex-basis: 100%; /* Ensure heading takes full width above its column */
+            margin-bottom: 5px; /* Space below heading */
+        }
+
+        /* New styles for DVR columns - Made more compact */
+        .dvr-slot-column {
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* Spacing between stacked items */
+            flex: 0 0 110px; /* Fixed width of 110px, won't grow or shrink */
+            border: 1px dashed #e0e0e0; /* Border for visual separation of columns */
+            border-radius: 5px;
+            padding: 5px; /* Padding inside each column */
+            background-color: #f8f8f8; /* Background for each column */
+        }
+        .dvr-slot-column input[type="text"] {
+            width: calc(100% - 10px); /* Adjust input width within padding */
+            max-width: 100px; /* Ensure input doesn't exceed column width */
+            margin: 0; /* Remove default input margins */
+            box-sizing: border-box; /* Include padding/border in width */
+            text-align: center; /* Center text in name field */
+        }
+        .dvr-slot-column button {
+            width: calc(100% - 10px); /* Make buttons take full width of column */
+            max-width: 100px; /* Ensure button doesn't exceed column width */
+            margin: 0; /* Remove default button margins */
+            box-sizing: border-box; /* Include padding/border in width */
+            padding: 5px 8px; /* Smaller padding for smaller buttons */
+            font-size: 0.85rem; /* Smaller font size for buttons */
+        }
+
+
+        .logbook-field-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            margin-bottom: 10px;
+        }
+        .logbook-field-group div {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        .logbook-field-group label {
+            min-width: 80px;
+        }
+        .logbook-field-group input[type="text"],
+        .logbook-field-group input[type="number"] {
+            flex-grow: 1;
+        }
+        
+        .logbook-field-group span {
+            font-weight: bold;
+            color: #0056b3;
+            min-width: 100px;
+        }
+        #commentsInput {
+            width: calc(100% - 16px);
+            min-height: 60px;
+        }
+        small {
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* New Flex Container for Radio Control and DVR */
+        .flex-container-radio-dvr {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 20px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Styling for Radio Control and DVR sections within the flex container */
+        .radio-control-section {
+            flex: 2; /* Takes twice the space of dvr-section */
+            min-width: 380px; /* Minimum width to prevent content crunching */
+            /* Inherits .controls padding, border, background */
+        }
+
+        .dvr-section {
+            flex: 1; /* Takes half the space of radio-control-section */
+            min-width: 500px; /* Adjusted minimum width for DVR to accommodate 4 columns */
+            /* Inherits .controls padding, border, background */
+            display: flex; /* Enable flex for main DVR section to arrange columns */
+            flex-direction: column; /* Stack main DVR content */
+            align-items: flex-start; /* Align items to the start */
+        }
+
+        /* Ensure controls styling is applied to flex children */
+        .radio-control-section, .dvr-section {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fcfcfc;
+        }
+
+        /* Cabrillo specific styles */
+        .cabrillo-field-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            margin-bottom: 10px;
+        }
+        .cabrillo-field-group div {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        .cabrillo-field-group label {
+            min-width: 100px;
+        }
+        .cabrillo-field-group input[type="text"],
+        .cabrillo-field-group select {
+            flex-grow: 1;
+            width: auto; /* Override general select width */
+        }
+
+
+
+        /* Styles for Multipliers section */
+        #multipliersList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0;
+            list-style: none;
+            margin-top: 10px;
+        }
+        .multiplier-item {
+            padding: 5px 10px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            background-color: #eaf6ff;
+            color: #0056b3;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .multiplier-item.used {
+            background-color: #28a745; /* Green for used multipliers */
+            color: white;
+            border-color: #218838;
+        }
+        .multiplier-item:hover {
+            opacity: 0.8;
+        }
+        #importCsvButton {
+            background-color: #ffc107;
+            color: #333;
+        }
+        #importCsvButton:hover {
+            background-color: #e0a800;
+        }
+
+
+        /* Shrink contest input fields */
+        #contestLogFields input[type="text"] {
+            width: 75% !important;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .flex-container-radio-dvr {
+                flex-direction: column; /* Stack on smaller screens */
+            }
+            .radio-control-section, .dvr-section {
+                flex: none; /* Remove flex basis when stacked */
+                width: 100%; /* Take full width when stacked */
+                min-width: auto; /* Remove min-width when stacked */
+            }
+            .dvr-slot-group {
+                flex-direction: column; /* Stack DVR columns on small screens */
+            }
+            .dvr-slot-column {
+                width: 100%; /* Make each column full width when stacked */
+                min-width: auto; /* Reset min-width for stacking */
+                flex-basis: auto; /* Allow auto sizing when stacked */
+            }
+            .dvr-slot-column input[type="text"],
+            .dvr-slot-column button {
+                max-width: none; /* Remove max-width constraint when stacked */
+            }
+        }
+        
+
+
+#floatingRadioPanel {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  width: 320px;
+  z-index: 1000;
+  padding: 10px;
+  background-color: #fcfcfc;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.stacked-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.control-pair {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.control-pair label {
+  min-width: 70px;
+}
+
+.vfo-button-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.vfo-label {
+  font-weight: bold;
+}
+
+.vfo-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dvr-slot-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dvr-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  #floatingRadioPanel {
+    position: static;
+    width: 100%;
+    max-height: none;
+    box-shadow: none;
+    border: none;
+    margin-bottom: 20px;
+  }
+}
+
+
+#floatingMultiplierPanel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 240px;
+  z-index: 1000;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+#multiplierGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mult-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.mult-header {
+  font-weight: bold;
+  margin: 0.3rem 0 0.2rem;
+  font-size: 0.95em;
+}
+
+.mult-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mult-item-grid {
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  color: white;
+  white-space: nowrap;
+}
+
+.mult-item-grid.used {
+  font-weight: bold;
+  outline: 2px solid white;
+}
+
+
+
+
+.mult-legend {
+  margin-top: 8px;
+}
+
+.mult-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 4px 8px;
+}
+
+.mult-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8em;
+}
+
+.mult-legend-item span {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+</style>
+</head>
+
+
+<body>
+    <div class="container">
+        <h1>UMR Log</h1><small>Prototype_11-09-2025</small>
+
+        <div class="controls">
+            <details open>
+                <summary><h2 class="summary-heading">Connection</h2></summary>
+            <div id="statusArea">Status: Disconnected</div>
+            <div class="inline-group">
+                <label for="radioModelSelect">Radio Model:</label>
+                <select id="radioModelSelect" onwheel="handleRadioModelScroll(event)" title="Scroll to change radio model">
+                    <option value="0x94" data-dvr-support="true">Icom IC-7300 (0x94)</option>
+                    <option value="0xA4" data-dvr-support="true">Icom IC-705 (0xA4)</option>
+                    <option value="0xA6" data-dvr-support="true">Icom IC-7610 (0xA6)</option>
+                    <option value="0xA2" data-dvr-support="true">Icom IC-9700 (0xA2)</option>
+                    <option value="0x88" data-dvr-support="true">Icom IC-7100 (0x88)</option>
+                    <option value="0x86" data-dvr-support="false">Icom IC-7200 (0x86)</option>
+                    <option value="0x70" data-dvr-support="true">Icom IC-7000 (0x70)</option>
+                    <option value="0x58" data-dvr-support="false">Icom IC-706 (0x58)</option>
+                    <option value="0x58" data-dvr-support="false">Icom IC-718 (0x58)</option>
+                    <option value="0x30" data-dvr-support="false">Icom IC-737 (0x30)</option>
+                </select>
+                <button id="connectButton" onclick="connectSerial()">Connect to Radio</button>
+<!-- Add to Connection UI -->
+<div class="inline-group" style="display: none;">
+  <label for="radioIpInput">Radio IP:</label>
+  <input type="text" id="radioIpInput" placeholder="192.168.1.100">
+  <label for="radioPortInput">Port:</label>
+  <input type="number" id="radioPortInput" placeholder="50001" value="50001">
+  <button class="action-button" onclick="connectNetwork()">Connect via Network</button>
+</div>
+
+<script>
+let useNetwork = false;
+let networkSocket = null;
+
+function connectNetwork() {
+    const ip = document.getElementById("radioIpInput").value;
+    const port = document.getElementById("radioPortInput").value || 50001;
+
+   networkSocket = new WebSocket(`ws://${ip}:${port}`);
+
+    //const url = `ws://192.168.42.51:50002'; 
+ 
+    //networkSocket = new WebSocket(url);
+    networkSocket.binaryType = "arraybuffer";
+
+    networkSocket.onopen = () => {
+        outputArea.textContent += `Connected to radio via proxy at ${url}\n`;
+        useNetwork = true;
+        updateUIConnected(true);
+        getModeAndFilter();
+        setTimeout(() => getFrequency(), 200);
+    };
+
+    networkSocket.onmessage = (event) => {
+        const data = new Uint8Array(event.data);
+        handleIncomingData(data); // your existing parser
+    };
+
+    networkSocket.onerror = (err) => {
+        outputArea.textContent += `Network error: ${err.message}\n`;
+    };
+
+    networkSocket.onclose = () => {
+        outputArea.textContent += "Network connection closed.\n";
+        updateUIConnected(false);
+        useNetwork = false;
+    };
+}
+
+function sendCivCommand(commandBytes) {
+    if (useNetwork && networkSocket && networkSocket.readyState === WebSocket.OPEN) {
+        networkSocket.send(Uint8Array.from(commandBytes));
+    } else if (writer) {
+        writer.write(new Uint8Array(commandBytes));
+    } else {
+        console.warn("No connection available to send CI-V command.");
+    }
+}
+</script>
+
+
+                <button id="disconnectButton" onclick="disconnectSerial()" disabled>Disconnect</button>
+            </div>
+            <p>
+                <small>
+                    Requires Google Chrome 89+ and Icom USB drivers installed. <br>
+                    CI-V USB Baud Rate = 115200.  CI-V Transceive = `ON`.
+                </small>
+            </p>
+            </details>
+        </div>
+
+        <div class="flex-container-radio-dvr">
+   
+                <div id="floatingRadioPanel">
+                  <div class="radio-control-section">
+                    <details open>
+                      <summary><h2 class="summary-heading">Radio Control</h2></summary>
+                      <div class="stacked-control-group">
+                        <div class="control-pair">
+                          <label for="bandSelect">Band:</label>
+                          <select id="bandSelect" onwheel="handleBandScroll(event)" title="Scroll to change band">
+                            <option value="1.8">160M</option>
+                            <option value="3.5">80M</option>
+                            <option value="5.3">60M</option>
+                            <option value="7.0">40M</option>
+                            <option value="10.1">30M</option>
+                            <option value="14.0">20M</option>
+                            <option value="18.068">17M</option>
+                            <option value="21.0">15M</option>
+                            <option value="24.89">12M</option>
+                            <option value="28.0">10M</option>
+                            <option value="50.0">6M</option>
+                            <option value="144.0">2M</option>
+                            <option value="432.0">70CM</option>
+                            <option value="1296.0">23CM</option>
+                          </select>
+                        </div>
+                
+                        <div class="control-pair">
+                          <label for="freqInput">Frequency:</label>
+                          <input type="number" id="freqInput" value="14200000" min="30000" max="70000000" step="1000"
+                            title="Scroll to change frequency (100 Hz default, Shift = 1 kHz, Alt = 10 kHz)"
+                            onkeydown="if(event.key === 'Enter') setFrequency(this.value);"
+                            onchange="handleFreqChange()"
+                            onwheel="handleFreqScroll(event)">
+                        </div>
+                
+                        <div class="control-pair">
+                          <label for="modeSelect">Mode:</label>
+                          <select id="modeSelect" onchange="setRigMode()" onwheel="handleModeScroll(event)" disabled title="Scroll to change mode">
+                            <option value="0x00">LSB</option>
+                            <option value="0x01">USB</option>
+                            <option value="0x02">AM</option>
+                            <option value="0x03">CW</option>
+                            <option value="0x04">RTTY</option>
+                            <option value="0x05">FM</option>
+                            <option value="0x06">WFM</option>
+                            <option value="0x07">CW-R</option>
+                            <option value="0x08">RTTY-R</option>
+                            <option value="0x17">DV (if supported)</option>
+                          </select>
+                        </div>
+                
+                        <div class="vfo-button-row">
+                          <div class="vfo-label">VFO</div>
+                          <div class="vfo-buttons">
+                            <button id="swapVfoButton" class="action-button" onclick="swapVfo()" disabled>Swap</button>
+                            <button id="copyVfoButton" class="action-button" onclick="copyActiveVfoToInactive()" disabled>Equalize</button>
+                          </div>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                
+                  <div class="dvr-section" id="dvrControlsSection">
+                    <details open>
+                      <summary><h2 class="summary-heading">DVR Memory</h2></summary>
+                      <div class="dvr-slot-stack">
+                        <div class="dvr-slot-row">
+                          <input type="text" class="dvr-slot-name-input" placeholder="Name" data-slot="1">
+                          <button class="action-button dvr-play-button" data-slot="1" onclick="playDvrMemory(1)" disabled>Play Slot 1</button>
+                        </div>
+                        <div class="dvr-slot-row">
+                          <input type="text" class="dvr-slot-name-input" placeholder="Name" data-slot="2">
+                          <button class="action-button dvr-play-button" data-slot="2" onclick="playDvrMemory(2)" disabled>Play Slot 2</button>
+                        </div>
+                        <div class="dvr-slot-row">
+                          <input type="text" class="dvr-slot-name-input" placeholder="Name" data-slot="3">
+                          <button class="action-button dvr-play-button" data-slot="3" onclick="playDvrMemory(3)" disabled>Play Slot 3</button>
+                        </div>
+                        <div class="dvr-slot-row">
+                          <input type="text" class="dvr-slot-name-input" placeholder="Name" data-slot="4">
+                          <button class="action-button dvr-play-button" data-slot="4" onclick="playDvrMemory(4)" disabled>Play Slot 4</button>
+                        </div>
+                        <div class="dvr-slot-row">
+                          <div style="flex-grow:1;"></div>
+                          <button id="stopDvrButton" class="action-button" onclick="stopDvr()" disabled>Stop All DVR</button>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                </div>
+                
+                
+                <!-- Right floating pane for multipliers -->
+             
+<div id="floatingMultiplierPanel" style="display:none;">
+  <div class="multiplier-section">
+    <details open>
+      <summary><h2 class="summary-heading">Multipliers</h2></summary>
+      <div id="multiplierGroups"></div>
+      <div class="mult-legend">
+        <h4>Band Color Legend</h4>
+        <div class="mult-legend-grid">
+          <!-- Col 1: 160-30 -->
+          <div class="mult-legend-item"><span style="background:#800000"></span> 160M</div>
+          <div class="mult-legend-item"><span style="background:#DAA520"></span> 20M</div>
+          <div class="mult-legend-item"><span style="background:#4169E1"></span> 6M</div>
+
+          <div class="mult-legend-item"><span style="background:#8B4513"></span> 80M</div>
+          <div class="mult-legend-item"><span style="background:#228B22"></span> 17M</div>
+          <div class="mult-legend-item"><span style="background:#1E90FF"></span> 2M</div>
+          
+          <div class="mult-legend-item"><span style="background:#A0522D"></span> 60M</div>
+          <div class="mult-legend-item"><span style="background:#2E8B57"></span> 15M</div>
+          <div class="mult-legend-item"><span style="background:#6A5ACD"></span> 70CM</div>
+          
+          <div class="mult-legend-item"><span style="background:#B22222"></span> 40M</div>
+          <div class="mult-legend-item"><span style="background:#3CB371"></span> 12M</div>
+          <div class="mult-legend-item"><span style="background:#7B68EE"></span> 23CM</div>
+        
+          <div class="mult-legend-item"><span style="background:#CD853F"></span> 30M</div>
+          <div class="mult-legend-item"><span style="background:#4682B4"></span> 10M</div>
+
+          </div>
+      </div>
+    </details>
+  </div>
+</div>
+        
+     
+        </div>
+
+
+
+        <div class="controls">
+            <details open>
+                <summary><h2 class="summary-heading">Amateur Radio Logbook</h2></summary>
+            <div class="checkbox-group">
+                <input type="checkbox" id="contestModeCheckbox">
+                <label for="contestModeCheckbox">Enable Contest Mode</label>
+            </div>
+
+            <div id="normalLogFields">
+                <div class="logbook-field-group">
+                    <div><label for="callsignInput">Callsign:</label><input type="text" id="callsignInput" placeholder="N0CALL" disabled></div>
+                    <div><label>Date (UTC):</label><span id="logDateDisplay"></span></div>
+                    <div><label>Time (UTC):</label><span id="logTimeDisplay"></span></div>
+                    <div><label>Band:</label><span id="logBandDisplay"></span></div>
+                    <div><label>Mode:</label><span id="logModeDisplay"></span></div>
+                    <div><label>Frequency:</label><span id="logFreqDisplay"></span></div>
+                    <div><label for="rstSentInput">RST Sent:</label><input type="text" id="rstSentInput" placeholder="599" disabled></div>
+                    <div><label for="rstRcvdInput">RST Rcvd:</label><input type="text" id="rstRcvdInput" placeholder="599" disabled></div>
+                    <div><label for="nameInput">Name:</label><input type="text" id="nameInput" placeholder="John" disabled></div>
+                    <div><label for="qthInput">QTH:</label><input type="text" id="qthInput" placeholder="Anytown, USA" disabled></div>
+                </div>
+                <div class="logbook-field-group" style="flex-wrap: nowrap;">
+                    <label for="commentsInput">Comments:</label>
+                    <textarea id="commentsInput" placeholder="Rig: IC-7300, Antenna: Dipole" disabled></textarea>
+                </div>
+            </div>
+
+
+            <div id="contestLogFields" style="display: none; position: relative;">
+                <div class="logbook-field-group">
+                    <div><label for="contestCallsignInput">Callsign:</label><input type="text" id="contestCallsignInput" placeholder="N0CALL" disabled></div>
+                    <div><label>Date (UTC):</label><span id="contestLogDateDisplay"></span></div>
+                    <div><label>Time (UTC):</label><span id="contestLogTimeDisplay"></span></div>
+                    <div><label>Band:</label><span id="contestLogBandDisplay"></span></div>
+                    <div><label>Mode:</label><span id="contestLogModeDisplay"></span></div>
+                    <div><label>Frequency:</label><span id="contestLogFreqDisplay"></span></div>
+                    <div><label for="contestRstSentInput">RST Sent:</label><input type="text" id="contestRstSentInput" placeholder="599" disabled></div>
+                    <div><label for="contestRstRcvdInput">RST Rcvd:</label><input type="text" id="contestRstRcvdInput" placeholder="599" disabled></div>
+                <div style="display: flex; align-items: center;">
+                  <label for="myExchangeInput">My Exchange:</label>
+                    <input type="text" id="myExchangeInput" placeholder="[SRL] TX" style="width: 50px; min-width: 10px; color: #888;" disabled>
+                    <span id="resolvedExchangePreview" style="margin-left: 10px; color: #0056b3; font-weight: bold; min-width: 140px; display: inline-block;"></span>
+                  <label style="margin-left: 5px; font-size: 0.85em;">
+                    <input type="checkbox" id="incrementSerialCheckbox"> Increment Serial
+                  </label>
+                </div>
+
+
+                    <div><label for="theirExchangeInput">Their Exchange:</label><input type="text" id="theirExchangeInput" placeholder="002 MA" disabled></div>
+                </div>
+                <p><small>Enter your full exchange in "My Exchange" and theirs in "Their Exchange" as space-separated values (e.g., "001 TX", "599 GA 02").</small></p>
+            <!-- Duplicate Indicators -->
+        <div id="duplicateIndicators" style="display: flex; flex-direction: column; align-items: center; position: absolute; top: 10px; right: 10px;">
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span id="contestDupIndicator" style="width: 20px; height: 20px; background-color: green; border-radius: 50%; margin-right: 6px;"></span>
+                <small>Contest</small>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span id="bandDupIndicator" style="width: 20px; height: 20px; background-color: green; border-radius: 50%; margin-right: 6px;"></span>
+                <small>Band</small>
+            </div>
+        </div>
+    </div>
+
+            <div class="inline-group">
+                <button id="logQSOButton" onclick="logQSO()" disabled>Log QSO</button>
+                <button id="downloadLogButton" onclick="downloadLog()" disabled>Download Log (CSV)</button>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="autosaveCheckbox">
+                <label for="autosaveCheckbox">Enable Autosave to Browser</label>
+            </div>
+            
+            <h3>Session Log:</h3>
+            <div id="logbookDisplayArea" style="width: 100%; height: 200px; overflow-y: auto; background: #000; color: #0f0; font-family: monospace; white-space: pre;"></div>
+                <button onclick="downloadSessionLog()">Open Log In New Window</button>
+                <button onclick="startNewLog()">Start New Log</button>
+                <input type="file" id="importLogFileInput" accept=".json" style="display:none" />
+                <button onclick="document.getElementById('importLogFileInput').click()">Load Existing Log</button>
+            </details>
+        </div>
+
+
+
+   <div class="controls" id="multipliersSection">
+            <details open>
+                <summary><h2 class="summary-heading">Multipliers</h2></summary>
+                <div class="inline-group">
+                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                    <button id="importCsvButton" onclick="document.getElementById('csvFileInput').click()">Import Multipliers (CSV)</button> <small>Import a 1- or 2- column CSV list of Multipliers</small>
+                </div>
+                <ul id="multipliersList">
+                    </ul>
+                <p><small>
+            </details>
+        </div>
+
+
+
+
+
+
+
+        <div class="controls">
+            <details open>
+                <summary><h2 class="summary-heading">Cabrillo Export Settings</h2></summary>
+            <div class="cabrillo-field-group">
+                
+        <div><label for="stationCallsignInput">Station Callsign:</label>
+        <input type="text" id="stationCallsignInput" placeholder="W1AW" class="cabrillo-setting"></div>
+
+        <div><label for="contestNameInput">Contest:</label><input type="text" id="contestNameInput" placeholder="ARRL-SS-CW" class="cabrillo-setting"></div>
+                <div><label for="categoryOperatorSelect">Category Operator:</label>
+                    <select id="categoryOperatorSelect" class="cabrillo-setting">
+                        <option value="SINGLE-OP">SINGLE-OP</option>
+                        <option value="MULTI-OP">MULTI-OP</option>
+                        <option value="CHECKLOG">CHECKLOG</option>
+                    </select>
+                </div>
+                <div><label for="categoryAssistedSelect">Category Assisted:</label>
+                    <select id="categoryAssistedSelect" class="cabrillo-setting">
+                        <option value="NON-ASSISTED">NON-ASSISTED</option>
+                        <option value="ASSISTED">ASSISTED</option>
+                    </select>
+                </div>
+                <div><label for="categoryPowerSelect">Category Power:</label>
+                    <select id="categoryPowerSelect" class="cabrillo-setting">
+                        <option value="HIGH">HIGH</option>
+                        <option value="LOW">LOW</option>
+                        <option value="QRP">QRP</option>
+                    </select>
+                </div>
+                <div><label for="locationInput">Location:</label><input type="text" id="locationInput" placeholder="DX / KS / ON" class="cabrillo-setting"></div>
+                <div><label for="operatorsInput">Operators:</label><input type="text" id="operatorsInput" placeholder="N0CALL, W1AW" class="cabrillo-setting"></div>
+                <div><label for="clubInput">Club:</label><input type="text" id="clubInput" placeholder="My Radio Club" class="cabrillo-setting"></div>
+            </div>
+            
+    <div style="flex-direction: column;">
+        <label for="soapboxInput">Soapbox:</label>
+        <textarea id="soapboxInput" placeholder="Any comments or notes for the Cabrillo file..." class="cabrillo-setting" rows="3" style="width: 100%; resize: vertical;"></textarea>
+    </div>
+
+
+    <div class="inline-group" style="justify-content: center;">
+                <button id="exportCabrilloButton" onclick="exportCabrillo()" disabled>Export Cabrillo (LOG)</button>
+            </div>
+            <p><small>Note: Exchange fields for QSO lines are derived from "Name" (sent) and "QTH" (received) for normal logs, or "My Exchange" and "Their Exchange" for contest logs. If empty, "000" is used as a placeholder.</small></p>
+        </details>
+        </div>
+
+
+        <div class="output">
+            <details open>
+            <summary><h2 class="summary-heading">Serial Output</h2></summary>
+            <button id="exportSerialButton" disabled>Export Serial Output</button>
+            <textarea id="outputArea" readonly></textarea>
+            </details>
+        </div>
+    </div>
+
+
+
+
+
+    <script>
+        // Global variables for serial port management
+        let port;
+        let reader;
+        let writer; // This needs to be declared globally
+        let entryReferenceFreqHz = null;
+        let readLoopRunning = false;
+        
+        //let currentRadioAddress = 0x94; // Default to IC-7300 address
+        const filters = []; // This should be defined globally as well       
+        
+        let frequencyPollTimer = null; // Used for debouncing automatic frequency reads
+        let rawMultipliersCsvLines = []; // Stores original CSV lines for floating panel rendering
+
+        // CI-V Constants (common to Icom)
+        const CIV_PREAMBLE = [0xFE, 0xFE];
+        const CIV_END = 0xFD;
+        const CONTROLLER_ADDRESS = 0xE0;
+
+        // Radio CI-V Addresses
+        let currentRadioAddress = 0x94;
+
+        function resolveMyExchangeTemplate() {
+            const input = document.getElementById('myExchangeInput');
+            const preview = document.getElementById('resolvedExchangePreview');
+            let template = input.value.trim();
+
+            const previousSerials = logbookEntries
+                .filter(e => e.type === "contest")
+                .map(e => {
+                    const match = (e.myExchange || '').match(/\\d+/);
+                    return match ? parseInt(match[0], 10) : 0;
+                })
+                .filter(n => !isNaN(n));
+            const nextSerial = previousSerials.length > 0 ? Math.max(...previousSerials) + 1 : 1;
+            const serialStr = nextSerial.toString().padStart(3, '0');
+
+            template = template.replace(/<srl>|\\[srl\\]/ig, serialStr);
+            preview.textContent = template;
+        }
+
+ 
+ 
+
+        // localStorage Keys
+        const LOCAL_STORAGE_LOGBOOK_KEY = 'icomRigLogbook';
+        const LOCAL_STORAGE_AUTOSAVE_ENABLED_KEY = 'icomRigAutosaveEnabled';
+        const LOCAL_STORAGE_CABRILLO_SETTINGS_KEY = 'icomRigCabrilloSettings';
+        const LOCAL_STORAGE_CONTEST_MODE_KEY = 'icomRigContestModeEnabled'; // New key for contest mode
+        const LOCAL_STORAGE_MULTIPLIERS_KEY = 'icomRigMultipliers'; // NEW key for multipliers
+        
+        
+        // UI Element References
+        const radioModelSelect = document.getElementById('radioModelSelect');
+        const connectButton = document.getElementById('connectButton');
+        const disconnectButton = document.getElementById('disconnectButton');
+        const statusArea = document.getElementById('statusArea');
+        const outputArea = document.getElementById('outputArea');
+        const freqInput = document.getElementById('freqInput');
+        const modeSelect = document.getElementById('modeSelect');
+        const exportSerialButton = document.getElementById('exportSerialButton');
+
+
+        // VFO/Memory UI Elements
+        const vfoAButton = document.getElementById('vfoAButton');
+        const vfoBButton = document.getElementById('vfoBButton');
+        const vfoAtoBButton = document.getElementById('vfoAtoBButton'); // NEW
+        const vfoBtoAButton = document.getElementById('vfoBtoAButton'); // NEW
+
+        // DVR Buttons and Inputs
+        const playDvrButtons = document.querySelectorAll('.dvr-play-button');
+        const stopDvrButton = document.getElementById('stopDvrButton');
+        const dvrNameInputs = document.querySelectorAll('.dvr-slot-name-input');
+        const dvrControlsSection = document.getElementById('dvrControlsSection');
+
+        // Logbook UI Element References
+        const contestModeCheckbox = document.getElementById('contestModeCheckbox'); // New checkbox
+
+        const normalLogFieldsDiv = document.getElementById('normalLogFields'); // New div
+        const callsignInput = document.getElementById('callsignInput');
+        const logDateDisplay = document.getElementById('logDateDisplay');
+        const logTimeDisplay = document.getElementById('logTimeDisplay');
+        const logBandDisplay = document.getElementById('logBandDisplay');
+        const logModeDisplay = document.getElementById('logModeDisplay');
+        const logFreqDisplay = document.getElementById('logFreqDisplay'); // This will now show MHz
+        const rstSentInput = document.getElementById('rstSentInput');
+        const rstRcvdInput = document.getElementById('rstRcvdInput');
+        const nameInput = document.getElementById('nameInput');
+        const qthInput = document.getElementById('qthInput');
+        const commentsInput = document.getElementById('commentsInput');
+
+        const contestLogFieldsDiv = document.getElementById('contestLogFields'); // New div
+        const contestCallsignInput = document.getElementById('contestCallsignInput'); // New input
+        const contestLogDateDisplay = document.getElementById('contestLogDateDisplay'); // New span
+        const contestLogTimeDisplay = document.getElementById('contestLogTimeDisplay'); // New span
+        const contestLogBandDisplay = document.getElementById('contestLogBandDisplay'); // New span
+        const contestLogModeDisplay = document.getElementById('contestLogModeDisplay'); // New span
+        const contestLogFreqDisplay = document.getElementById('contestLogFreqDisplay'); // This will now show MHz
+        const contestRstSentInput = document.getElementById('contestRstSentInput'); // New input
+        const contestRstRcvdInput = document.getElementById('contestRstRcvdInput'); // New input
+        const myExchangeInput = document.getElementById('myExchangeInput'); // New input
+        const theirExchangeInput = document.getElementById('theirExchangeInput'); // New input
+        const incrementSerialCheckbox = document.getElementById('incrementSerialCheckbox');
+        const contestDupIndicator = document.getElementById('contestDupIndicator');
+        const bandDupIndicator = document.getElementById('bandDupIndicator');
+
+
+
+
+
+        const logQSOButton = document.getElementById('logQSOButton');
+        const downloadLogButton = document.getElementById('downloadLogButton');
+        const logbookDisplayArea = document.getElementById('logbookDisplayArea');
+        const autosaveCheckbox = document.getElementById('autosaveCheckbox');
+
+
+        // Set contest mode tab order and Enter key behavior
+        contestCallsignInput.tabIndex = 1;
+        theirExchangeInput.tabIndex = 2;
+        contestRstSentInput.tabIndex = 3;
+        contestRstRcvdInput.tabIndex = 4;
+        myExchangeInput.tabIndex = 5;
+        logQSOButton.tabIndex = 6;
+
+        theirExchangeInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent accidental submit
+                logQSO();                // Log the contact
+                contestCallsignInput.focus(); // Refocus on Callsign
+            }
+        });
+
+
+
+  function updateMultiplierPanel(multipliersRaw) {
+  const panel = document.getElementById('floatingMultiplierPanel');
+  const container = document.getElementById('multiplierGroups');
+  if (!multipliersRaw || multipliersRaw.length === 0) {
+    panel.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const bands = {
+    "160M": "#800000", "80M": "#8B4513", "60M": "#A0522D", "40M": "#B22222",
+    "30M": "#CD853F", "20M": "#DAA520", "17M": "#228B22", "15M": "#2E8B57",
+    "12M": "#3CB371", "10M": "#4682B4", "6M": "#4169E1", "2M": "#1E90FF",
+    "70CM": "#6A5ACD", "23CM": "#7B68EE"
+  };
+
+  const grouped = {};
+  for (const m of multipliersRaw) {
+    const [name, band, category] = m.split(',').map(s => s.trim());
+    const group = category || "Uncategorized";
+    if (!grouped[group]) grouped[group] = [];
+    grouped[group].push({ name, band });
+  }
+
+  container.innerHTML = '';
+  for (const group in grouped) {
+    const section = document.createElement('div');
+    section.className = 'mult-group';
+
+    const heading = document.createElement('div');
+    heading.className = 'mult-header';
+    heading.textContent = group;
+    section.appendChild(heading);
+
+    const grid = document.createElement('div');
+    grid.className = 'mult-grid';
+
+    grouped[group].forEach(({ name, band }) => {
+      const item = document.createElement('div');
+      item.className = 'mult-item-grid';
+
+      const match = multipliers.find(m => m.name.toUpperCase() === name.toUpperCase());
+      const isUsed = match?.used;
+
+      const bgColor = bands[band?.toUpperCase()] || '#ccc';
+      item.style.backgroundColor = bgColor;
+      item.style.color = 'white';
+      item.textContent = name;
+
+      if (isUsed) {
+        item.style.outline = '2px solid white';
+        item.style.fontWeight = 'bold';
+      }
+
+      grid.appendChild(item);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  }
+}
+
+  
+
+                    
+
+
+
+        callsignInput.addEventListener('input', () => {
+            callsignInput.value = callsignInput.value.toUpperCase();
+            entryReferenceFreqHz = parseInt(freqInput.value, 10);
+        });
+        contestCallsignInput.addEventListener('input', () => {
+            contestCallsignInput.value = contestCallsignInput.value.toUpperCase();
+            entryReferenceFreqHz = parseInt(freqInput.value, 10);
+        });
+        theirExchangeInput.addEventListener('input', () => {
+            theirExchangeInput.value = theirExchangeInput.value.toUpperCase();
+            entryReferenceFreqHz = parseInt(freqInput.value, 10);
+        });
+
+
+
+
+        // Cabrillo UI Elements
+        const contestNameInput = document.getElementById('contestNameInput');
+        const categoryOperatorSelect = document.getElementById('categoryOperatorSelect');
+        const categoryAssistedSelect = document.getElementById('categoryAssistedSelect');
+        const categoryPowerSelect = document = document.getElementById('categoryPowerSelect');
+        const locationInput = document.getElementById('locationInput');
+        const operatorsInput = document.getElementById('operatorsInput');
+        const clubInput = document.getElementById('clubInput');
+        const exportCabrilloButton = document.getElementById('exportCabrilloButton');
+        const cabrilloSettingsInputs = document.querySelectorAll('.cabrillo-setting'); // For saving/loading
+
+
+        // NEW Multiplier UI Elements
+        const csvFileInput = document.getElementById('csvFileInput');
+        const multipliersListElement = document.getElementById('multipliersList');
+
+        // Logbook Data Storage
+        let logbookEntries = [];
+        let isContestMode = false; // New global state for logging mode
+
+        // Multiplier Data Storage
+        // Stores objects like { name: "GA", used: false }
+        let multipliers = []; 
+
+
+        // Cabrillo Settings Storage
+        let cabrilloSettings = {
+            contestName: '',
+            categoryOperator: 'SINGLE-OP',
+            categoryAssisted: 'NON-ASSISTED',
+            categoryPower: 'HIGH',
+            location: '',
+            operators: '',
+            club: ''
+        };
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+        // --- Helper functions for Logbook ---
+
+        function getBandFromFrequency(frequencyHz) {
+            if (!frequencyHz) return 'N/A';
+            const freqMHz = frequencyHz / 1_000_000; // Convert Hz to MHz
+
+            if (freqMHz >= 1.8 && freqMHz <= 2.0) return '160M';
+            if (freqMHz >= 3.5 && freqMHz <= 4.0) return '80M';
+            if (freqMHz >= 5.3 && freqMHz <= 5.4) return '60M'; // Approx
+            if (freqMHz >= 7.0 && freqMHz <= 7.3) return '40M';
+            if (freqMHz >= 10.1 && freqMHz <= 10.15) return '30M';
+            if (freqMHz >= 14.0 && freqMHz <= 14.35) return '20M';
+            if (freqMHz >= 18.068 && freqMHz <= 18.168) return '17M';
+            if (freqMHz >= 24.89 && freqMHz <= 24.99) return '12M';
+            if (freqMHz >= 26.965 && freqMHz <= 27.405) return 'CB';
+            if (freqMHz >= 28.0 && freqMHz <= 29.7) return '10M';
+            if (freqMHz >= 50.0 && freqMHz <= 54.0) return '6M';
+            if (freqMHz >= 144.0 && freqMHz <= 148.0) return '2M';
+            if (freqMHz >= 420.0 && freqMHz <= 450.0) return '70CM';
+            if (freqMHz >= 1240.0 && freqMHz <= 1300.0) return '23CM';
+            return 'Other/Unknown';
+        }
+
+
+        function editLogEntry(index) {
+            const entry = logbookEntries[index];
+            if (!entry) return;
+
+            const fields = ['callsign', 'rstSent', 'rstRcvd', 'qth', 'band', 'mode', 'frequency', 'timestamp', 'myExchange'];
+            const updated = { ...entry };
+
+            const form = fields.map(field => {
+                const label = field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                const current = entry[field] || '';
+                return `${label}: <input type="text" id="edit-${field}" value="${current}" style="width: 100%;"><br>`;
+                    }).join('\n');
+
+            const html = `
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${form}
+                </div>
+            `;
+
+            const container = document.createElement('div');
+            container.innerHTML = html;
+
+            if (confirm("Edit this QSO? (A new window will open)")) {
+                const w = window.open("", "", "width=400,height=600");
+                w.document.write("<h2>Edit Log Entry</h2>");
+                w.document.body.appendChild(container);
+
+                const saveBtn = w.document.createElement('button');
+                saveBtn.textContent = "Save";
+                saveBtn.onclick = () => {
+                    fields.forEach(field => {
+                        const el = w.document.getElementById(`edit-${field}`);
+                        updated[field] = el.value.trim();
+                    });
+                    logbookEntries[index] = updated;
+                    updateLogbookDisplay();
+                    w.close();
+                };
+                w.document.body.appendChild(saveBtn);
+            }
+        }
+
+        function getModeName(modeByte) {
+            switch (modeByte) {
+                case 0x00: return 'LSB';
+                case 0x01: return 'USB';
+                case 0x02: return 'AM';
+                case 0x03: return 'CW';
+                case 0x04: return 'RTTY';
+                case 0x05: return 'FM';
+                case 0x06: return 'WFM';               
+                case 0x07: return 'CW-R';
+                case 0x08: return 'RTTY-R';
+                case 0x17: return 'DV'; // Added DV mode
+                default: return 'Unknown';
+            }
+        }
+
+
+
+function updateMultiplierPanelFromState() {
+  const lines = multipliers.map(m => {
+    const band = m.band || 'Unknown';
+    const category = m.category || 'Uncategorized';
+    return `${m.name},${band},${category}`;
+  });
+  updateMultiplierPanel(lines);
+}
+
+
+
+
+        // Helper to convert internal mode names to Cabrillo modes
+        function getCabrilloMode(modeName) {
+            switch (modeName) {
+                case 'LSB': return 'SSB';
+                case 'USB': return 'SSB';
+                case 'CW':
+                case 'CW-R': return 'CW';
+                case 'FM':
+                case 'AM': return 'FM';
+                case 'RTTY':
+                case 'RTTY-R': return 'RTTY';
+                case 'DV': return 'FM'; // DV often logged as FM in contests for Cabrillo
+                default: return 'OTHER';
+            }
+        }
+
+        // New helper function to update frequency-related UI elements centrally
+        
+        function updateFrequencyUI(frequencyHz) {
+            // ↓ Centralized applyFrequency defined after this
+            freqInput.value = frequencyHz; // Main input field stays in Hz
+            const freqMHz = (frequencyHz / 1_000_000).toFixed(6); // Convert to MHz with 6 decimal places for display
+            document.title = `UMR-LOG - ${freqMHz} MHz`; // Update title bar
+            
+            // Update Logbook displays in MHz
+            logFreqDisplay.textContent = `${freqMHz} MHz`;
+            autoSelectBandDropdown(frequencyHz);
+            contestLogFreqDisplay.textContent = `${freqMHz} MHz`;
+            
+            applyFrequency(frequencyHz);
+            
+            // This ensures date/time/band/mode are updated, which depend on freqInput.value (Hz) and modeSelect.value
+            updateLogbookLiveData();
+        }
+
+        function applyFrequency(newFreqHz) {
+            const freqDiff = entryReferenceFreqHz !== null ? Math.abs(newFreqHz - entryReferenceFreqHz) : 0;
+            previousFreqHz = newFreqHz;
+            if (entryReferenceFreqHz !== null && freqDiff >= 500) {
+                callsignInput.value = '';
+                contestCallsignInput.value = '';
+                theirExchangeInput.value = '';
+                rstSentInput.value = '599';
+                rstRcvdInput.value = '599';
+                contestRstSentInput.value = '599';
+                contestRstRcvdInput.value = '599';
+                entryReferenceFreqHz = null;
+            }
+            //updateFrequencyUI(newFreqHz);
+        }
+
+        // Updates date, time, band, mode in the currently visible log section
+        function updateLogbookLiveData() {
+            const now = new Date();
+            const utcDate = now.getUTCFullYear() + '-' +
+                            String(now.getUTCMonth() + 1).padStart(2, '0') + '-' +
+                            String(now.getUTCDate()).padStart(2, '0');
+            const utcTime = String(now.getUTCHours()).padStart(2, '0') + ':' +
+                            String(now.getUTCMinutes()).padStart(2, '0') + ':' +
+                            String(now.getUTCSeconds()).padStart(2, '0');
+
+            const currentFreqHz = parseInt(freqInput.value, 10); // Get Hz value for band calculation
+            const currentBand = getBandFromFrequency(currentFreqHz);
+            const currentMode = getModeName(parseInt(modeSelect.value, 16));
+
+            // Update Normal Log displays (frequency already handled by updateFrequencyUI)
+            logDateDisplay.textContent = utcDate;
+            logTimeDisplay.textContent = utcTime;
+            logBandDisplay.textContent = currentBand;
+            logModeDisplay.textContent = currentMode;
+
+            // Update Contest Log displays (frequency already handled by updateFrequencyUI)
+            contestLogDateDisplay.textContent = utcDate;
+            contestLogTimeDisplay.textContent = utcTime;
+            contestLogBandDisplay.textContent = currentBand;
+            contestLogModeDisplay.textContent = currentMode;
+        }
+
+
+        function handleFreqChange() {
+            const freqHz = parseInt(freqInput.value, 10);
+            if (!isNaN(freqHz)) {
+                updateFrequencyUI(freqHz);
+                outputArea.textContent += `Frequency set to ${freqHz} Hz via input change.\n`;
+            }
+        }
+
+        function handleModeScroll(event) {
+            event.preventDefault(); // Prevent page scrolling
+
+            const select = event.target;
+            const currentIndex = select.selectedIndex;
+
+            // Calculate new index
+            let newIndex = currentIndex + (event.deltaY < 0 ? -1 : 1);
+
+            // Clamp to valid range
+            if (newIndex < 0) newIndex = 0;
+            if (newIndex >= select.options.length) newIndex = select.options.length - 1;
+
+            // Apply and trigger change
+            select.selectedIndex = newIndex;
+            setRigMode();
+
+            outputArea.textContent += `Mode set to ${select.options[newIndex].text} via scroll.\n`;
+        }
+
+
+function handleRadioModelScroll(event) {
+    if (radioModelSelect.disabled) return;
+
+    event.preventDefault(); // Prevent page scroll
+
+    const currentIndex = radioModelSelect.selectedIndex;
+    let newIndex = currentIndex + (event.deltaY < 0 ? -1 : 1);
+
+    // Clamp to bounds
+    newIndex = Math.max(0, Math.min(newIndex, radioModelSelect.options.length - 1));
+    if (newIndex === currentIndex) return;
+
+    radioModelSelect.selectedIndex = newIndex;
+
+    // Manually trigger change handler (if not using event listener, replicate logic here)
+    radioModelSelect.dispatchEvent(new Event('change')); // ✅ TRIGGER THE CHANGE EVENT
+
+    outputArea.textContent += `Radio model changed to ${radioModelSelect.options[newIndex].text} via scroll.\n`;
+}
+
+
+
+
+
+
+// Scroll wheel handler (mouse over input box)
+function handleFreqScroll(event) {
+    event.preventDefault(); // Prevent page from scrolling
+
+    const currentFreq = parseInt(freqInput.value, 10);
+    if (isNaN(currentFreq)) return;
+
+    // Default step = 100 Hz (fine tuning)
+    let step = 100;
+
+    // Hold Shift for coarse (1 kHz), Alt for ultra-coarse (10 kHz)
+    if (event.shiftKey) step = 1000;
+    if (event.altKey) step = 10000;
+
+    let newFreq = currentFreq + (event.deltaY > 0 ? -step : step);
+
+    // Clamp within allowed min/max
+    const min = parseInt(freqInput.min, 10);
+    const max = parseInt(freqInput.max, 10);
+    newFreq = Math.max(min, Math.min(max, newFreq));
+
+    freqInput.value = newFreq;
+    updateFrequencyUI(newFreq);
+    outputArea.textContent += `Frequency set to ${newFreq} Hz via scroll (step=${step}).\n`;
+}
+
+
+
+function handleBandScroll(event) {
+    event.preventDefault();
+    const select = event.target;
+    let index = select.selectedIndex + (event.deltaY < 0 ? -1 : 1);
+
+    index = Math.max(0, Math.min(index, select.options.length - 1));
+    if (index === select.selectedIndex) return;
+
+    select.selectedIndex = index;
+    const freqMHz = parseFloat(select.options[index].value);
+    const freqHz = Math.round(freqMHz * 1_000_000);
+    freqInput.value = freqHz;
+    updateFrequencyUI(freqHz);
+
+    outputArea.textContent += `Band set to ${select.options[index].text} (${freqHz} Hz).\n`;
+}
+
+
+
+
+        
+document.getElementById('bandSelect').addEventListener('change', () => {
+    const freqMHz = parseFloat(bandSelect.value);
+    const freqHz = Math.round(freqMHz * 1_000_000);
+
+    updateFrequencyUI(freqHz);  // ✅ This updates freqInput, log pane, band dropdown, etc.
+
+    outputArea.textContent += `Band set to ${bandSelect.options[bandSelect.selectedIndex].text} via dropdown.\n`;
+});
+
+
+
+        // Function to update DVR section visibility based on selected radio
+        function updateDvrVisibility() {
+            const selectedOption = radioModelSelect.options[radioModelSelect.selectedIndex];
+            const supportsDvr = selectedOption.dataset.dvrSupport === 'true';
+            dvrControlsSection.style.display = supportsDvr ? 'flex' : 'none'; // Changed to flex for the column layout
+        }
+
+        // --- New: Toggle between Normal and Contest Log UI ---
+        function toggleLogModeUI() {
+            isContestMode = contestModeCheckbox.checked;
+
+            if (isContestMode) {
+                normalLogFieldsDiv.style.display = 'none';
+                contestLogFieldsDiv.style.display = 'block';
+
+                // Transfer common values if moving from normal to contest mode
+                contestCallsignInput.value = callsignInput.value;
+                contestRstSentInput.value = rstSentInput.value;
+                contestRstRcvdInput.value = rstRcvdInput.value;
+
+                // Disable normal fields, enable contest fields
+                callsignInput.disabled = true;
+                rstSentInput.disabled = true;
+                rstRcvdInput.disabled = true;
+                nameInput.disabled = true;
+                qthInput.disabled = true;
+                commentsInput.disabled = true;
+
+                contestCallsignInput.disabled = !port || !port.readable;
+                contestRstSentInput.disabled = !port || !port.readable;
+                contestRstRcvdInput.disabled = !port || !port.readable;
+                myExchangeInput.disabled = !port || !port.readable;
+                theirExchangeInput.disabled = !port || !port.readable;
+
+            } else {
+                normalLogFieldsDiv.style.display = 'block';
+                contestLogFieldsDiv.style.display = 'none';
+
+                // Transfer common values if moving from contest to normal mode
+                callsignInput.value = contestCallsignInput.value;
+                rstSentInput.value = contestRstSentInput.value;
+                rstRcvdInput.value = contestRstRcvdInput.value;
+
+                // Disable contest fields, enable normal fields
+                contestCallsignInput.disabled = true;
+                contestRstSentInput.disabled = true;
+                contestRstRcvdInput.disabled = true;
+                myExchangeInput.disabled = true;
+                theirExchangeInput.disabled = true;
+
+                callsignInput.disabled = !port || !port.readable;
+                rstSentInput.disabled = !port || !port.readable;
+                rstRcvdInput.disabled = !port || !port.readable;
+                nameInput.disabled = !port || !port.readable;
+                qthInput.disabled = !port || !port.readable;
+                commentsInput.disabled = !port || !port.readable;
+            }
+            // Save preference
+            localStorage.setItem(LOCAL_STORAGE_CONTEST_MODE_KEY, isContestMode);
+            updateLogbookLiveData(); // Ensure display is updated correctly
+        }
+
+
+        // --- Core UI Update Function ---
+        async function updateUIConnected(isConnected) {
+
+            radioModelSelect.disabled = isConnected;
+            connectButton.disabled = isConnected;
+            disconnectButton.disabled = !isConnected;
+            freqInput.disabled = !isConnected;
+            modeSelect.disabled = !isConnected;
+             exportSerialButton.disabled = !isConnected;
+
+            // New VFO/Memory controls
+            swapVfoButton.disabled = !isConnected;
+            copyVfoButton.disabled = !isConnected;
+
+
+
+            // DVR buttons and inputs are enabled/disabled only if the section is visible
+            playDvrButtons.forEach(button => button.disabled = !isConnected);
+            stopDvrButton.disabled = !isConnected;
+            dvrNameInputs.forEach(input => input.disabled = !isConnected);
+
+            // Enable/disable logbook inputs and buttons based on mode
+            contestModeCheckbox.disabled = !isConnected; // Always enable the toggle
+            logQSOButton.disabled = !isConnected;
+            downloadLogButton.disabled = (logbookEntries.length === 0 || !isConnected);
+            exportCabrilloButton.disabled = (logbookEntries.length === 0 || !isConnected);
+
+            // Dynamically enable/disable fields based on current mode after connection state is set
+            if (isConnected) {
+                toggleLogModeUI(); // Re-apply UI state based on contest mode checkbox
+            } else {
+                // When disconnected, disable ALL logbook inputs
+                callsignInput.disabled = true;
+                rstSentInput.disabled = true;
+                rstRcvdInput.disabled = true;
+                nameInput.disabled = true;
+                qthInput.disabled = true;
+                commentsInput.disabled = true;
+
+                contestCallsignInput.disabled = true;
+                contestRstSentInput.disabled = true;
+                contestRstRcvdInput.disabled = true;
+                myExchangeInput.disabled = true;
+                theirExchangeInput.disabled = true;
+
+                // Clear live data displays
+                logDateDisplay.textContent = '';
+                logTimeDisplay.textContent = '';
+                logFreqDisplay.textContent = '';
+                logBandDisplay.textContent = '';
+                logModeDisplay.textContent = '';
+                contestLogDateDisplay.textContent = '';
+                contestLogTimeDisplay.textContent = '';
+                contestLogFreqDisplay.textContent = '';
+                contestLogBandDisplay.textContent = '';
+                contestLogModeDisplay.textContent = '';
+
+                document.title = "KC9UMR Log"; // Reset title on disconnect
+            }
+
+
+            const selectedRadioName = radioModelSelect.options[radioModelSelect.selectedIndex].text;
+            statusArea.textContent = `Status: ${isConnected ? 'Connected to ' + selectedRadioName : 'Disconnected'}`;
+
+            if (isConnected) {
+                // Initial frequency and mode read after connection
+                getModeAndFilter(); // Also poll mode/filter on connect
+                await new Promise(r => setTimeout(r, 200)); // <--- ADD THIS DELAY (200ms)
+                getFrequency();
+            }
+        }
+
+        // --- Renaming Logic for DVR Buttons ---
+        dvrNameInputs.forEach(input => {
+            input.addEventListener('input', (event) => {
+                const slot = event.target.dataset.slot;
+                const newName = event.target.value.trim();
+
+                const playButton = document.querySelector(`.dvr-play-button[data-slot="${slot}"]`);
+
+                if (playButton) {
+                    playButton.textContent = newName ? `Play ${newName}` : `Play Slot ${slot}`;
+                }
+            });
+        });
+
+
+   // --- Multiplier Functionality (NEW) ---
+
+        // Load multipliers from local storage
+        function loadMultipliersFromLocalStorage() {
+            const storedMultipliers = localStorage.getItem(LOCAL_STORAGE_MULTIPLIERS_KEY);
+            if (storedMultipliers) {
+                multipliers = JSON.parse(storedMultipliers);
+                renderMultipliers();
+            }
+        }
+
+        // Save multipliers to local storage
+        function saveMultipliersToLocalStorage() {
+            localStorage.setItem(LOCAL_STORAGE_MULTIPLIERS_KEY, JSON.stringify(multipliers));
+        }
+
+        // Render multipliers to the UI
+        
+        
+        function renderMultipliers() {
+                multipliersListElement.innerHTML = '';
+               // multipliers.sort((a, b) => a.name.localeCompare(b.name));
+            
+                multipliers.forEach(mult => {
+                    const li = document.createElement('li');
+                    li.classList.add('multiplier-item');
+                    if (mult.used) li.classList.add('used');
+                    li.textContent = mult.name;
+                    if (mult.tooltip) li.title = mult.tooltip;
+                    multipliersListElement.appendChild(li);
+                });
+            }
+
+        
+         function downloadSessionLog() {
+             const blob = new Blob([JSON.stringify(logbookEntries, null, 2)], { type: 'application/json' });
+             const url = URL.createObjectURL(blob);
+             const a = document.createElement('a');
+                      a.href = url;
+             a.download = 'session_log.json';
+             a.click();
+             URL.revokeObjectURL(url);
+         }
+
+function startNewLog() {
+    if (confirm("Start a new log session? The current log will be saved and cleared.")) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const blob = new Blob([JSON.stringify(logbookEntries, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `log_${timestamp}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        logbookEntries.length = 0;
+        updateLogbookDisplay();
+        outputArea.textContent += "Previous log saved. New session started.\n";
+    }
+}
+
+        document.getElementById('importLogFileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (logbookEntries.length > 0) {
+                const proceed = confirm("Current log has entries. Loading a file will replace it. Continue?");
+                if (!proceed) return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        logbookEntries.length = 0;
+                        logbookEntries.push(...imported);
+                        updateLogbookDisplay();
+                        outputArea.textContent += `Imported ${imported.length} log entries from file.\n`;
+                    } else {
+                        alert("Invalid log file format.");
+                    }
+                } catch (err) {
+                    alert("Error reading file: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+
+        //dupe checking
+        contestCallsignInput.addEventListener('input', () => {
+            const callsign = contestCallsignInput.value.trim().toUpperCase();
+            if (callsign) {
+                checkDuplicateStatus(callsign);
+            } else {
+                contestDupIndicator.style.backgroundColor = 'green';
+                        bandDupIndicator.style.backgroundColor = 'green';
+            }
+        });
+
+
+
+csvFileInput.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+    multipliers = lines.map(line => {
+      const parts = line.split(',');
+      const name = parts[0]?.trim().toUpperCase() || '';
+      const tooltip = parts[1]?.trim() || null;
+      const category = parts[2]?.trim() || 'Uncategorized';
+    
+      return {
+        name,
+        tooltip,
+        category,
+        used: false
+      };
+    });
+
+
+    // 🔍 Check logbook entries and mark multipliers as worked
+    logbookEntries.forEach(entry => {
+      const exchange =
+        entry.type === "contest"
+          ? entry.theirExchange?.toUpperCase() || ""
+          : entry.qth?.toUpperCase() || "";
+
+      multipliers.forEach(mult => {
+        const regex = new RegExp(`\\b${mult.name}\\b`, 'i');
+        if (regex.test(exchange)) {
+          mult.used = true;
+          mult.band = entry.band;  // ✅ Use most recent QSO band
+        }
+      });
+    });
+
+    renderMultipliers();
+    updateMultiplierPanelFromState();  // Generates floating panel from `multipliers`
+    outputArea.textContent += `Imported ${multipliers.length} multipliers from CSV.\n`;
+  };
+
+  reader.readAsText(file);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+        // --- Logbook Functionality (MODIFIED to include multiplier check) ---
+function logQSO() {
+    let qsoEntry = {};
+    let exchangeValue = '';
+
+    if (isContestMode) {
+        const callsign = contestCallsignInput.value.trim().toUpperCase();
+        if (!callsign) {
+            alert("Callsign is required to log a QSO.");
+            contestCallsignInput.focus();
+            return;
+        }
+
+        updateLogbookLiveData();
+
+        // Determine mode for RST defaulting
+        const modeText = contestLogModeDisplay.textContent.toUpperCase();
+        const isVoiceMode = ['USB', 'LSB', 'AM', 'FM', 'DV'].includes(modeText);
+        const defaultRST = isVoiceMode ? '59' : '599';
+
+        // Apply RST defaults if empty
+        if (!contestRstSentInput.value.trim()) {
+            contestRstSentInput.value = defaultRST;
+        }
+        if (!contestRstRcvdInput.value.trim()) {
+            contestRstRcvdInput.value = defaultRST;
+        }
+
+        // Create QSO entry
+        qsoEntry = {
+            type: 'contest',
+            callsign: callsign,
+            date: contestLogDateDisplay.textContent,
+            time: contestLogTimeDisplay.textContent,
+            band: contestLogBandDisplay.textContent,
+            mode: contestLogModeDisplay.textContent,
+            frequency: freqInput.value,
+            rstSent: contestRstSentInput.value.trim(),
+            rstRcvd: contestRstRcvdInput.value.trim(),
+            myExchange: myExchangeInput.value.trim(),
+            theirExchange: theirExchangeInput.value.trim()
+        };
+        exchangeValue = qsoEntry.theirExchange.toUpperCase();
+
+        // 🔁 Auto-increment serial if enabled
+                    if (incrementSerialCheckbox.checked) {
+                    let template = myExchangeInput.value.trim();
+            let serialMatch = template.match(/<srl>|\\[srl\\]/i);
+            let nextSerial = 1;
+
+            if (serialMatch) {
+                const previousSerials = logbookEntries
+                    .filter(e => e.type === "contest")
+                    .map(e => {
+                        const match = (e.myExchange || '').match(/\\d+/);
+                        return match ? parseInt(match[0], 10) : 0;
+                    })
+                    .filter(n => !isNaN(n));
+                nextSerial = previousSerials.length > 0 ? Math.max(...previousSerials) + 1 : 1;
+
+                const serialStr = nextSerial.toString().padStart(3, '0');
+                template = template.replace(/<srl>|\\[srl\\]/ig, serialStr);
+
+                if (incrementSerialCheckbox.checked) {
+                    // Update the template input to next serial for future
+                    const newSerialStr = (nextSerial + 1).toString().padStart(3, '0');
+                    myExchangeInput.value = myExchangeInput.value.replace(/<srl>|\\[srl\\]/ig, newSerialStr);
+                }
+            }
+
+            qsoEntry.myExchange = template;
+            resolveMyExchangeTemplate();
+   
+           
+           
+        }
+
+    } else {
+        const callsign = callsignInput.value.trim().toUpperCase();
+        if (!callsign) {
+            alert("Callsign is required to log a QSO.");
+            callsignInput.focus();
+            return;
+        }
+
+        updateLogbookLiveData();
+
+        const modeText = logModeDisplay.textContent.toUpperCase();
+        const isVoiceMode = ['USB', 'LSB', 'AM', 'FM', 'DV'].includes(modeText);
+        const defaultRST = isVoiceMode ? '59' : '599';
+
+        if (!rstSentInput.value.trim()) {
+            rstSentInput.value = defaultRST;
+        }
+        if (!rstRcvdInput.value.trim()) {
+            rstRcvdInput.value = defaultRST;
+        }
+
+        qsoEntry = {
+            type: 'normal',
+            callsign: callsign,
+            date: logDateDisplay.textContent,
+            time: logTimeDisplay.textContent,
+            band: logBandDisplay.textContent,
+            mode: logModeDisplay.textContent,
+            frequency: freqInput.value,
+            rstSent: rstSentInput.value.trim(),
+            rstRcvd: rstRcvdInput.value.trim(),
+            name: nameInput.value.trim(),
+            qth: qthInput.value.trim(),
+            comments: commentsInput.value.trim()
+        };
+        exchangeValue = qsoEntry.qth.toUpperCase();
+    }
+
+    // 🎯 Multiplier match
+    let foundNewMultiplier = false;
+        multipliers.forEach(multiplier => {
+          const match = new RegExp(`\\b${multiplier.name}\\b`, 'i').test(exchangeValue);
+          if (match && !multiplier.used) {
+            multiplier.used = true;
+            multiplier.band = qsoEntry.band;       // ✅ update with actual band
+            foundNewMultiplier = true;
+          }
+        });
+
+
+
+    if (foundNewMultiplier) {
+        saveMultipliersToLocalStorage();
+        renderMultipliers();
+    }
+
+    logbookEntries.push(qsoEntry);
+    downloadLogButton.disabled = false;
+    exportCabrilloButton.disabled = false;
+    if (autosaveCheckbox.checked) {
+        saveLogbookToLocalStorage();
+    }
+
+    // 🔄 Clear fields for next QSO
+    if (isContestMode) {
+        contestCallsignInput.value = '';
+        contestRstSentInput.value = '';
+        contestRstRcvdInput.value = '';
+        if (!incrementSerialCheckbox.checked) {
+            //myExchangeInput.value = '';
+        }
+        theirExchangeInput.value = '';
+        contestCallsignInput.focus();
+    } else {
+        callsignInput.value = '';
+        rstSentInput.value = '';
+        rstRcvdInput.value = '';
+        nameInput.value = '';
+        qthInput.value = '';
+        commentsInput.value = '';
+        callsignInput.focus();
+    }
+    updateLogbookDisplay();
+
+updateMultiplierPanelFromState();
+
+
+}
+
+
+
+function updateMultiplierPanelFromState() {
+  const lines = multipliers.map(m => {
+    const band = m.band || 'Unknown';
+    const category = m.category || 'Uncategorized';  // Default fallback
+    return `${m.name},${band},${category}`;
+  });
+  updateMultiplierPanel(lines);
+}
+
+
+
+
+function updateLogbookDisplay() {
+    const logbookDisplayArea = document.getElementById("logbookDisplayArea");
+    logbookDisplayArea.innerHTML = ''; // Clear display
+
+    let header;
+    if (isContestMode) {
+        header = "Date,Time,Band,Mode,Callsign,RST_Sent,RST_Rcvd,My_Exchange,Their_Exchange";
+    } else {
+        header = "Date,Time,Band,Mode,Callsign,RST_Sent,RST_Rcvd,Name,QTH,Comments";
+    }
+
+    logbookDisplayArea.innerHTML += `<div><strong>${header}</strong></div>`;
+
+    [...logbookEntries].reverse().forEach((entry, reversedIndex) => {
+        const trueIndex = logbookEntries.length - 1 - reversedIndex;
+        let line;
+
+        if (entry.type === 'contest') {
+            line = `${entry.date},${entry.time},${entry.band},${entry.mode},${entry.callsign},${entry.rstSent},${entry.rstRcvd},"${entry.myExchange}","${entry.theirExchange}"`;
+        } else {
+            line = `${entry.date},${entry.time},${entry.band},${entry.mode},${entry.callsign},${entry.rstSent},${entry.rstRcvd},"${entry.name}","${entry.qth}","${entry.comments}"`;
+        }
+                    
+                    
+                    const div = document.createElement("div");
+                    div.style.display = "flex";
+                    div.style.alignItems = "center";
+                    div.style.justifyContent = "space-between";
+                    div.style.marginBottom = "2px";
+                    
+                    // === Left side: Edit button and entry text ===
+                    const leftSide = document.createElement("div");
+                    leftSide.style.display = "flex";
+                    leftSide.style.alignItems = "center";
+                    
+                    const editBtn = document.createElement("button");
+                    editBtn.textContent = "✏️";
+                    editBtn.title = "Edit";
+                    editBtn.style.fontSize = "0.75em";
+                    editBtn.style.padding = "2px 5px";
+                    editBtn.style.marginRight = "6px";
+                    editBtn.style.lineHeight = "1";
+                    editBtn.style.border = "1px solid #ccc";
+                    editBtn.style.borderRadius = "4px";
+                    editBtn.style.background = "#f3f3f3";
+                    editBtn.style.cursor = "pointer";
+                    editBtn.onclick = () => editLogEntry(trueIndex);
+                    
+                    const contentSpan = document.createElement("span");
+                    contentSpan.textContent = line;
+                    
+                    leftSide.appendChild(editBtn);
+                    leftSide.appendChild(contentSpan);
+                    
+                    // === Right side: Delete button ===
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "❌";
+                    deleteBtn.title = "Delete";
+                    deleteBtn.style.fontSize = "0.75em";
+                    deleteBtn.style.padding = "2px 6px";
+                    deleteBtn.style.marginLeft = "10px";
+                    deleteBtn.style.lineHeight = "1";
+                    deleteBtn.style.border = "1px solid #c00";
+                    deleteBtn.style.borderRadius = "4px";
+                    deleteBtn.style.background = "#fdd";
+                    deleteBtn.style.color = "#900";
+                    deleteBtn.style.cursor = "pointer";
+                    deleteBtn.onclick = () => {
+                        if (confirm("Delete this QSO?")) {
+                            logbookEntries.splice(trueIndex, 1);
+                            updateLogbookDisplay();
+                        }
+                    };
+                    
+                    // === Combine both sides ===
+                    div.appendChild(leftSide);
+                    div.appendChild(deleteBtn);
+                    logbookDisplayArea.appendChild(div);
+                    
+                    
+                    
+                    
+                        });
+                    
+                        logbookDisplayArea.scrollTop = logbookDisplayArea.scrollHeight;
+                    }
+
+
+
+
+
+
+
+
+        // Save logbook entries to Local Storage
+        function saveLogbookToLocalStorage() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_LOGBOOK_KEY, JSON.stringify(logbookEntries));
+                outputArea.textContent += `Logbook autosaved to browser storage.\n`;
+            } catch (error) {
+                console.error("Error saving logbook to local storage:", error);
+                outputArea.textContent += `Error autosaving logbook: ${error.message}\n`;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+        // Load logbook entries from Local Storage
+        function loadLogbookFromLocalStorage() {
+            try {
+                const storedLogbook = localStorage.getItem(LOCAL_STORAGE_LOGBOOK_KEY);
+                if (storedLogbook) {
+                    logbookEntries = JSON.parse(storedLogbook);
+                    updateLogbookDisplay();
+                    downloadLogButton.disabled = (logbookEntries.length === 0);
+                    exportCabrilloButton.disabled = (logbookEntries.length === 0);
+                    outputArea.textContent += `Logbook loaded from browser storage. Total entries: ${logbookEntries.length}\n`;
+                }
+            } catch (error) {
+                console.error("Error loading logbook from local storage:", error);
+                outputArea.textContent += `Error loading logbook: ${error.message}\n`;
+            }
+        }
+
+        function downloadLog() {
+            const logContent = logbookDisplayArea.value;
+            if (!logContent) {
+                alert("Logbook is empty. Nothing to download.");
+                return;
+            }
+            const blob = new Blob([logContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'KC9UMR_Log.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+
+
+
+        // --- Cabrillo Export Functionality ---
+  function exportCabrillo() {
+    if (logbookEntries.length === 0) {
+        alert("No log entries to export to Cabrillo.");
+        return;
+    }
+
+    // Get Cabrillo settings from UI
+    cabrilloSettings.contestName = contestNameInput.value.trim().toUpperCase();
+    cabrilloSettings.categoryOperator = categoryOperatorSelect.value;
+    cabrilloSettings.categoryAssisted = categoryAssistedSelect.value;
+    cabrilloSettings.categoryPower = categoryPowerSelect.value; // FIXED: No longer overwriting document
+    cabrilloSettings.location = locationInput.value.trim().toUpperCase();
+    cabrilloSettings.operators = operatorsInput.value.trim().toUpperCase();
+    cabrilloSettings.club = clubInput.value.trim().toUpperCase();
+    cabrilloSettings.stationCallsign = document.getElementById("stationCallsignInput").value.trim().toUpperCase();
+    cabrilloSettings.soapbox = document.getElementById("soapboxInput").value.trim();
+
+    // Save settings
+    saveCabrilloSettingsToLocalStorage();
+
+    const stationCallsign = document.getElementById("stationCallsignInput").value.trim().toUpperCase();
+    if (!stationCallsign) {
+        alert("Please enter the Station Callsign for Cabrillo export.");
+        document.getElementById("stationCallsignInput").focus();
+        return;
+    }
+    if (!myCallsign) {
+        alert("Please enter your own Callsign in the Logbook section before exporting Cabrillo.");
+        if (isContestMode) contestCallsignInput.focus();
+        else callsignInput.focus();
+        return;
+    }
+    if (!cabrilloSettings.contestName) {
+        alert("Please enter the Contest Name for Cabrillo export.");
+        contestNameInput.focus();
+        return;
+    }
+
+    let cabrilloContent = `START-OF-LOG: 3.0\n`;
+    cabrilloContent += `CONTEST: ${cabrilloSettings.contestName}\n`;
+    cabrilloContent += `CALLSIGN: ${stationCallsign}\n`;
+    cabrilloContent += `CATEGORY-OPERATOR: ${cabrilloSettings.categoryOperator}\n`;
+    cabrilloContent += `CATEGORY-ASSISTED: ${cabrilloSettings.categoryAssisted}\n`;
+    cabrilloContent += `CATEGORY-POWER: ${cabrilloSettings.categoryPower}\n`;
+    cabrilloContent += `CATEGORY-BAND: ALL\n`;
+    cabrilloContent += `CATEGORY-MODE: MIXED\n`;
+    cabrilloContent += `CATEGORY-STATION: FIXED\n`;
+
+    if (cabrilloSettings.location) {
+        cabrilloContent += `LOCATION: ${cabrilloSettings.location}\n`;
+    }
+    if (cabrilloSettings.operators) {
+        cabrilloContent += `OPERATORS: ${cabrilloSettings.operators}\n`;
+    }
+    if (cabrilloSettings.club) {
+        cabrilloContent += `CLUB: ${cabrilloSettings.club}\n`;
+    }
+
+    cabrilloContent += `CREATED-BY: Icom Rig Web Serial Controller (Web Serial API)\n`;
+    cabrilloContent += `SOAPBOX:\n`;
+    if (cabrilloSettings.soapbox) {
+        const lines = cabrilloSettings.soapbox.split("\n");
+        for (const line of lines) {
+            cabrilloContent += `* ${line}\n`;
+        }
+    }
+    cabrilloContent += `* Log generated using Icom Rig Web Serial Controller.\n`;
+    if (commentsInput.value.trim()) {
+        cabrilloContent += `* General comments from log: ${commentsInput.value.trim()}\n`;
+    }
+
+    // QSO lines
+    logbookEntries.forEach(entry => {
+        const freqMHz = (parseFloat(entry.frequency) / 1_000_000).toFixed(3);
+        const cabrilloMode = getCabrilloMode(entry.mode);
+        const qsoDate = entry.date.replace(/-/g, '');
+        const qsoTime = entry.time.substring(0, 5).replace(/:/g, '');
+
+        const myRST = entry.rstSent || '599';
+        const theirRST = entry.rstRcvd || '599';
+
+        let myExchange, theirExchange;
+
+        if (entry.type === 'contest') {
+            myExchange = entry.myExchange ? entry.myExchange.replace(/ /g, '_') : '000';
+            theirExchange = entry.theirExchange ? entry.theirExchange.replace(/ /g, '_') : '000';
+        } else {
+            myExchange = entry.name ? entry.name.replace(/ /g, '_') : '000';
+            theirExchange = entry.qth ? entry.qth.replace(/ /g, '_') : '000';
+        }
+
+
+
+
+        cabrilloContent += `QSO: ${freqMHz.padStart(8)} ${cabrilloMode.padStart(3)} ${qsoDate} ${qsoTime.padStart(4)} ${stationCallsign.padEnd(13)} ${myRST.padEnd(4)} ${myExchange.padEnd(6)} ${entry.callsign.padEnd(13)} ${theirRST.padEnd(4)} ${theirExchange.padEnd(6)}\n`;
+    });
+
+    cabrilloContent += `END-OF-LOG:\n`;
+
+    const blob = new Blob([cabrilloContent], { type: 'text/plain;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const filename = `${stationCallsign}_${cabrilloSettings.contestName || 'CONTEST'}.log`;
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click(); // ✅ Actually triggers download
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    alert(`Cabrillo file "${filename}" generated and downloaded!`);
+}
+
+        // --- Autosave Functionality ---
+
+        function saveLogbookToLocalStorage() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_LOGBOOK_KEY, JSON.stringify(logbookEntries));
+                console.log("Logbook saved to localStorage.");
+            } catch (e) {
+                console.error("Error saving logbook to localStorage:", e);
+                alert("Warning: Could not save logbook to browser storage. Your browser's storage might be full or blocked.");
+            }
+        }
+
+        function loadLogbookFromLocalStorage() {
+            try {
+                const storedLogbook = localStorage.getItem(LOCAL_STORAGE_LOGBOOK_KEY);
+                if (storedLogbook) {
+                    logbookEntries = JSON.parse(storedLogbook);
+                    updateLogbookDisplay();
+                    downloadLogButton.disabled = (logbookEntries.length === 0);
+                    exportCabrilloButton.disabled = (logbookEntries.length === 0); // Update Cabrillo button on load
+                    console.log("Logbook loaded from localStorage.");
+                }
+            } catch (e) {
+                console.error("Error loading logbook from localStorage:", e);
+                alert("Warning: Could not load previous logbook data from browser storage. Data might be corrupted.");
+                logbookEntries = []; // Clear corrupted data
+            }
+        }
+
+        function loadAutosavePreference() {
+            const enabled = localStorage.getItem(LOCAL_STORAGE_AUTOSAVE_ENABLED_KEY);
+            autosaveCheckbox.checked = (enabled === 'true' || enabled === null); // Default to true if not set
+        }
+
+        function saveAutosavePreference() {
+            localStorage.setItem(LOCAL_STORAGE_AUTOSAVE_ENABLED_KEY, autosaveCheckbox.checked);
+            console.log("Autosave preference saved:", autosaveCheckbox.checked);
+        }
+
+        // --- Cabrillo Settings Persistence ---
+        function saveCabrilloSettingsToLocalStorage() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_CABRILLO_SETTINGS_KEY, JSON.stringify(cabrilloSettings));
+                console.log("Cabrillo settings saved to localStorage.");
+            } catch (e) {
+                console.error("Error saving Cabrillo settings to localStorage:", e);
+            }
+        }
+
+        function loadCabrilloSettingsFromLocalStorage() {
+            try {
+                const storedSettings = localStorage.getItem(LOCAL_STORAGE_CABRILLO_SETTINGS_KEY);
+                if (storedSettings) {
+                    const loadedSettings = JSON.parse(storedSettings);
+                    // Merge loaded settings with default, ensuring all keys are present
+                    cabrilloSettings = { ...cabrilloSettings, ...loadedSettings };
+
+                    // Apply loaded settings to UI
+                    contestNameInput.value = cabrilloSettings.contestName;
+                    categoryOperatorSelect.value = cabrilloSettings.categoryOperator;
+                    categoryAssistedSelect.value = cabrilloSettings.categoryAssisted;
+                    categoryPowerSelect.value = cabrilloSettings.categoryPower;
+                    locationInput.value = cabrilloSettings.location;
+                    operatorsInput.value = cabrilloSettings.operators;
+                    clubInput.value = cabrilloSettings.club;
+                    document.getElementById("stationCallsignInput").value = cabrilloSettings.stationCallsign || "";
+                    document.getElementById("soapboxInput").value = cabrilloSettings.soapbox || "";
+
+                    console.log("Cabrillo settings loaded from localStorage.");
+                }
+            } catch (e) {
+                console.error("Error loading Cabrillo settings from localStorage:", e);
+            }
+        }
+
+        // --- Contest Mode Persistence ---
+        function loadContestModePreference() {
+            const storedPreference = localStorage.getItem(LOCAL_STORAGE_CONTEST_MODE_KEY);
+            if (storedPreference !== null) {
+                contestModeCheckbox.checked = (storedPreference === 'true');
+            } else {
+                contestModeCheckbox.checked = false; // Default to normal mode
+            }
+            isContestMode = contestModeCheckbox.checked; // Initialize global state
+            toggleLogModeUI(); // Apply initial UI state
+        }
+
+
+        // --- Event Listeners for Live Data Update and Auto-Poll Frequency ---
+
+        // Listen to frequency input and mode select for live data updates
+        freqInput.addEventListener('input', () => updateFrequencyUI(parseInt(freqInput.value, 10))); // Directly update UI on freq input
+        modeSelect.addEventListener('change', updateLogbookLiveData);
+
+        document.getElementById('myExchangeInput').addEventListener('input', resolveMyExchangeTemplate);
+
+
+        // Add event listeners to logbook input fields to trigger frequency/mode poll
+        // Collect all potential input fields for logbook data entry
+        const allLogbookInputs = [
+            callsignInput, rstSentInput, rstRcvdInput, nameInput, qthInput, commentsInput,
+            contestCallsignInput, contestRstSentInput, contestRstRcvdInput, myExchangeInput, theirExchangeInput
+        ];
+
+        allLogbookInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                // Only poll if connected
+                if (port && port.readable) {
+                    // Implement a simple debounce to avoid excessive polling
+                    clearTimeout(frequencyPollTimer);
+                    frequencyPollTimer = setTimeout(() => {
+                        getFrequency(); // Trigger a frequency read from the radio
+                        getModeAndFilter(); // Trigger a mode/filter read from the radio
+                    }, 500); // Debounce for 500ms
+                }
+            });
+        });
+
+
+        // Event listener for autosave checkbox
+        autosaveCheckbox.addEventListener('change', () => {
+            saveAutosavePreference();
+            if (autosaveCheckbox.checked) {
+                saveLogbookToLocalStorage();
+            }
+        });
+
+        // Event listeners for Cabrillo settings inputs to save them
+        cabrilloSettingsInputs.forEach(input => {
+            input.addEventListener('change', saveCabrilloSettingsToLocalStorage);
+            input.addEventListener('input', saveCabrilloSettingsToLocalStorage); // For text inputs
+        });
+
+        // Event listener for contest mode checkbox
+        contestModeCheckbox.addEventListener('change', toggleLogModeUI);
+
+
+        // --- Core Web Serial API Functions ---
+
+        // Check for Web Serial API support on page load
+        if ("serial" in navigator) {
+            console.log("Web Serial API supported!");
+            updateUIConnected(false); // Initial UI state (disconnected)
+            currentRadioAddress = parseInt(radioModelSelect.value, 16);
+            updateDvrVisibility(); // Set DVR visibility based on default selected radio
+
+            // Load preferences and logbook on startup
+            loadAutosavePreference();
+            loadCabrilloSettingsFromLocalStorage();
+            loadContestModePreference(); // Load and apply contest mode preference
+            if (autosaveCheckbox.checked) {
+                loadLogbookFromLocalStorage();
+            }
+            updateLogbookLiveData(); // Initial update of live data displays
+
+        } else {
+            console.error("Web Serial API not supported in this browser. Please use Chrome 89+ or similar.");
+            statusArea.textContent = "Status: Web Serial API not supported.";
+            connectButton.disabled = true;
+            radioModelSelect.disabled = true;
+            updateUIConnected(false);
+            dvrControlsSection.style.display = 'none';
+            autosaveCheckbox.disabled = true;
+            exportCabrilloButton.disabled = true; // Disable Cabrillo export if no Web Serial
+            cabrilloSettingsInputs.forEach(input => input.disabled = true);
+            contestModeCheckbox.disabled = true; // Disable contest mode toggle
+        }
+
+        // Event listener for radio model selection
+        radioModelSelect.addEventListener('change', () => {
+            currentRadioAddress = parseInt(radioModelSelect.value, 16);
+            const selectedRadioName = radioModelSelect.options[radioModelSelect.selectedIndex].text;
+            console.log(`Selected radio: ${selectedRadioName}, CI-V Address: 0x${currentRadioAddress.toString(16).toUpperCase()}`);
+            statusArea.textContent = `Status: Selected ${selectedRadioName}`;
+            updateDvrVisibility();
+        });
+
+        // Connect to Serial Port
+           async function connectSerial() {
+        try {
+            // --- Defensive Cleanup: Ensure no lingering locks or open ports from previous sessions ---
+            if (reader) {
+                try { await reader.cancel(); } catch (e) { console.warn("Error during reader cancel on reconnect cleanup:", e); } finally { reader = null; }
+            }
+            if (writer) {
+                try { writer.releaseLock(); } catch (e) { console.warn("Error during writer releaseLock on reconnect cleanup:", e); } finally { writer = null; }
+            }
+            if (port) {
+                try { await port.close(); } catch (e) { console.warn("Error during port close on reconnect cleanup:", e); } finally { port = null; }
+            }
+            // --- End Defensive Cleanup ---
+
+            // Request a new serial port from the user
+            port = await navigator.serial.requestPort({ filters });
+
+            // If the user cancels port selection, gracefully exit
+            if (!port) {
+                outputArea.textContent += "Port selection cancelled or no port selected.\n";
+                return;
+            }
+
+            // Open the selected serial port
+            await port.open({ baudRate: 115200 });
+
+            // Get a writer for the now-open port's writable stream
+            writer = port.writable.getWriter();
+            console.log("DEBUG: writer object AFTER getWriter():", writer); // <-- ADD THIS LOG
+
+            console.log("Serial port opened:", port);
+            const selectedRadioName = radioModelSelect.options[radioModelSelect.selectedIndex].text;
+            outputArea.textContent = `Serial port connected to ${selectedRadioName}.\n`;
+            
+            // Update UI and request initial radio state (frequency, mode, filter)
+            updateUIConnected(true);
+
+            // Start the continuous read loop for incoming serial data
+            readLoopRunning = true;
+            readSerialData();
+
+        } catch (error) {
+            console.error("DEBUG: Entering connectSerial catch block with error:", error); // <-- ADD THIS LOG
+            outputArea.textContent += `Error: ${error.message}\n`;
+            updateUIConnected(false); // Update UI to disconnected state
+
+            // Ensure cleanup happens even if an error occurs during connection
+            if (reader) { try { await reader.cancel(); } catch(e){} finally { reader = null; } }
+            if (writer) { try { writer.releaseLock(); } catch(e){} finally { writer = null; } }
+            if (port) { try { await port.close(); } catch(e){} finally { port = null; } }
+        }
+    }
+    
+    
+    
+    
+        // Read Data from Serial Port
+        async function readSerialData() {
+            reader = port.readable.getReader();
+            try {
+                let receivedBytes = [];
+                while (port.readable && readLoopRunning) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        console.log("Reader was canceled.");
+                        break;
+                    }
+                    if (value) {
+                        receivedBytes.push(...Array.from(value));
+                        while (true) {
+                            const message = extractCIVMessage(receivedBytes);
+                            if (message) {
+                                console.log("Complete CI-V message received:", message);
+                                outputArea.textContent += `RX: ${bytesToHexString(message)}\n`;
+                                processCIVMessage(message);
+                                receivedBytes = receivedBytes.slice(message.length);
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error reading from serial port:", error);
+                outputArea.textContent += `Read Error: ${error.message}\n`;
+            } finally {
+                if (reader) {
+                    reader.releaseLock();
+                    reader = null;
+                }
+                if (readLoopRunning) {
+                   disconnectSerial();
+                }
+            }
+        }
+
+        // Helper to extract a complete CI-V message from a byte array
+        function findSequence(array, sequence) {
+            for (let i = 0; i <= array.length - sequence.length; i++) {
+                let found = true;
+                for (let j = 0; j < sequence.length; j++) {
+                    if (array[i + j] !== sequence[j]) {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        function extractCIVMessage(buffer) {
+            const preambleIndex = findSequence(buffer, CIV_PREAMBLE);
+            if (preambleIndex === -1) {
+                return null;
+            }
+
+            const startIndex = preambleIndex + CIV_PREAMBLE.length;
+            const endIndex = buffer.indexOf(CIV_END, startIndex);
+
+            if (endIndex === -1) {
+                return null;
+            }
+
+            const message = buffer.slice(preambleIndex, endIndex + 1);
+            return message;
+        }
+
+        // Process CI-V messages (e.g., parse frequency response)
+        function processCIVMessage(messageBytes) {
+            // Frequency data response (0x00) or 0x03 response (as per user's working code)
+            if (messageBytes.length >= 11 &&
+                (messageBytes[4] === 0x00 || messageBytes[4] === 0x03) && // Command ID for frequency data (response/transceive) or 0x03 as per user's observation
+                messageBytes[10] === CIV_END) {
+
+                const freqBytes = messageBytes.slice(5, 10); // Extract 5 BCD frequency bytes
+                const frequencyHz = parseBCD(freqBytes); // Parse BCD to decimal Hz
+                outputArea.textContent += `Parsed Frequency: ${frequencyHz} Hz (from radio)\n`;
+                updateFrequencyUI(frequencyHz); // Centralized UI update
+            }
+
+            // Mode and Filter data response (0x00) or 0x06 response
+            if (messageBytes.length >= 7 &&
+                (messageBytes[4] === 0x04 || messageBytes[4] === 0x01) &&  // Command ID for mode/filter data
+                messageBytes[7] === CIV_END)  { // Ensure the end byte is present
+
+                const modeByte = messageBytes[5]; // Extract mode byte
+                const filterByte = messageBytes[6]; // Added filter byte parsing
+
+                // Check if the received mode matches an option in our select to avoid errors on unknown modes
+                const modeOption = Array.from(modeSelect.options).find(option => parseInt(option.value) === modeByte);
+                if (modeOption) {
+                    modeSelect.value = `0x${modeByte.toString(16).padStart(2, '0')}`;
+                } else {
+                    console.warn(`Received unknown mode byte: 0x${modeByte.toString(16)}. UI not updated for mode.`);
+                }
+
+                // Check if the received filter matches an option in our select
+                // Note: Not all Icom radios send filter information with the 0x00 or 0x06 transceive.
+                // It typically comes as part of the 0x06 command. If filterByte is 0xFD (end byte), it means no filter data.
+                updateLogbookLiveData();
+            }
+        }
+
+        /**
+         * Converts 5 BCD bytes (LSB first) to a decimal frequency in Hz.
+         */
+        function parseBCD(bcdBytes) {
+            if (bcdBytes.length !== 5) {
+                console.warn("BCD bytes array is not 5 bytes long for parsing.");
+                return 0;
+            }
+            let freqString = '';
+            for (let i = bcdBytes.length - 1; i >= 0; i--) {
+                const byte = bcdBytes[i];
+                freqString += ((byte >> 4) & 0x0F).toString();
+                freqString += (byte & 0x0F).toString();
+            }
+            return parseInt(freqString, 10);
+        }
+
+        /**
+         * Converts a decimal frequency in Hz to 5 BCD bytes (LSB first) for Icom CI-V.
+         */
+        function decimalToBCD(frequencyHz) {
+            let freqString = String(frequencyHz);
+            freqString = freqString.padStart(10, '0');
+
+            const finalBcdBytes = [];
+            for (let i = freqString.length - 1; i >= 0; i -= 2) {
+                const unitsDigit = parseInt(freqString[i], 10);
+                const tensDigit = parseInt(freqString[i - 1], 10);
+                finalBcdBytes.push((tensDigit << 4) | unitsDigit);
+            }
+            return new Uint8Array(finalBcdBytes);
+        }
+
+        /**
+         * Converts a decimal number to 2 BCD bytes (LSB first) for memory channel.
+         * Assumes max 999 channels, if 100 channels, second byte is 0x00.
+         */
+        function channelToBCD(channelNum) {
+            let chString = String(channelNum);
+            chString = chString.padStart(4, '0'); // Pad to 4 digits for 2 bytes BCD (e.g., 0012 for channel 12)
+
+            const bcdBytes = [];
+            // LSB first
+            bcdBytes.push(parseInt(chString.substring(2, 4), 16)); // e.g., '12' -> 0x12
+            bcdBytes.push(parseInt(chString.substring(0, 2), 16)); // e.g., '00' -> 0x00
+            return bcdBytes;
+        }
+
+        // Write Data to Serial Port (Send CI-V Command)
+            async function sendCIVCommand(commandBytes) {
+            if (writer) {
+                try {
+                    console.log("sendCIVCommand: Attempting to write. writer object:", writer);
+                    console.log("Writer closed promise status:", writer.closed); // Check if closed
+                    console.log("Writer ready promise status:", writer.ready);   // Check if ready
+
+                    await writer.ready; // Ensure the writer is ready before writing
+
+                    await writer.write(new Uint8Array(commandBytes)); // This is line 1483
+
+                    // ... rest of the function ...
+                    // You should already have this part, ensure it remains:
+                    // if (readLoopRunning) {
+                    //     // Trigger a new read to look for response
+                    //     readLoop();
+                    // }
+
+                } catch (error) {
+                    console.error("Error sending CI-V command:", error);
+                    outputArea.textContent += `Error sending command: ${error.message}\n`;
+                }
+            } else {
+                console.warn("sendCIVCommand: Writer not available. Command not sent.");
+                outputArea.textContent += "Error: Not connected to radio or writer not available.\n";
+            }
+        }
+
+        // Helper to convert byte array to hex string for display
+        function bytesToHexString(bytes) {
+            return Array.from(bytes).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+        }
+
+        // CI-V Commands for Icom Rigs
+
+        // Get Frequency (Command: 0x03) - this is now primarily called internally
+        async function getFrequency() { // <--- ADD 'async' here
+        const command = [
+            ...CIV_PREAMBLE,
+            currentRadioAddress,
+            CONTROLLER_ADDRESS,
+            0x03, // Get Frequency command
+            CIV_END
+        ];
+        outputArea.textContent += `Requesting Frequency from radio: ${command.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}\n`;
+        await sendCIVCommand(command); // <--- ADD 'await' here
+    }
+
+        // Get Mode and Filter (Command: 0x04) - New: poll for current mode and filter
+        async function getModeAndFilter() { // <--- ADD 'async' here
+        const command = [
+            ...CIV_PREAMBLE,
+            currentRadioAddress,
+            CONTROLLER_ADDRESS,
+            0x04, // Get Mode and Filter command
+            CIV_END
+        ];
+        outputArea.textContent += `Requesting Mode and Filter from radio: ${command.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ')}\n`;
+        await sendCIVCommand(command); // <--- ADD 'await' here
+    }
+
+
+
+
+        // Set Frequency (Command: 0x05)
+        function setFrequency(frequencyHz) {
+            const freqNum = parseInt(frequencyHz, 10);
+            if (isNaN(freqNum) || freqNum < 30000 || freqNum > 200000000) {
+                alert("Please enter a valid frequency in Hz (e.g., 14200000 for 14.2 MHz).");
+                return;
+            }
+
+            const freqBytes = decimalToBCD(freqNum);
+            const command = [
+                ...CIV_PREAMBLE,
+                currentRadioAddress,
+                CONTROLLER_ADDRESS,
+                0x05, // Command for Set Frequency
+                ...freqBytes,
+                CIV_END
+            ];
+            sendCIVCommand(command);
+            // Optimistic UI update: assume set command succeeds and update title immediately
+            // The actual radio response will then confirm/correct this via processCIVMessage
+            //updateFrequencyUI(freqNum);
+            applyFrequency(freqNum);         
+        }
+
+
+
+
+
+
+
+        // --- New: Wrapper functions for setting Mode/Filter separately ---
+        function setRigMode() {
+            const selectedMode = parseInt(modeSelect.value);
+            setMode(selectedMode);
+        }
+
+        // Set Mode and Filter (Command: 0x06) - This function directly maps to the CI-V command
+        function setMode(modeByte, filterByte) {
+            const command = [
+                ...CIV_PREAMBLE,
+                currentRadioAddress,
+                CONTROLLER_ADDRESS,
+                0x06, // Command for Set Mode
+                modeByte,
+                CIV_END
+            ];
+            sendCIVCommand(command);
+            // After sending mode, it's good practice to get frequency again as some radios change settings
+            // or to rely on transceive if it's ON. For now, we'll just update live data based on selection.
+            updateLogbookLiveData(); // Update live data based on selected mode
+        }
+
+        // --- VFO Commands ---
+        /**
+         * Switches the active VFO.
+         * @param {number} vfoId - 0x00 for VFO A, 0x01 for VFO B.
+         */
+        function selectVfo(vfoId) {
+            const command = [
+                ...CIV_PREAMBLE,
+                currentRadioAddress,
+                CONTROLLER_ADDRESS,
+                0x07, // VFO Select Command
+                vfoId,
+                CIV_END
+            ];
+            sendCIVCommand(command);
+            outputArea.textContent += `Attempting to select VFO ${vfoId === 0x00 ? 'A' : 'B'}.\n`;
+            // After changing VFO, request frequency to update UI with new VFO's frequency
+            setTimeout(getFrequency, 200); // Small delay to allow radio to switch
+            setTimeout(getModeAndFilter, 200); // Also poll mode/filter
+        }
+
+        let currentVfo = 0x00; // Assume starting with VFO A (0x00), B is 0x01
+
+        function swapVfo() {
+            const newVfo = currentVfo === 0x00 ? 0x01 : 0x00;
+            selectVfo(newVfo);
+            currentVfo = newVfo;
+            outputArea.textContent += `Swapped to VFO ${newVfo === 0x00 ? 'A' : 'B'}\n`;
+        }
+
+    async function copyActiveVfoToInactive() {
+        const sourceVfo = currentVfo;
+        const targetVfo = sourceVfo === 0x00 ? 0x01 : 0x00;
+
+        // Get current frequency and mode
+        const freq = parseInt(freqInput.value, 10);
+        const mode = parseInt(modeSelect.value, 16);
+
+        // Switch to target VFO
+        await selectVfo(targetVfo);
+        await delay(200);
+
+        // Apply frequency and mode
+        await setFrequency(freq);
+        await delay(100);
+        await setMode(mode);
+        await delay(200);
+
+        // Switch back to original VFO
+        await selectVfo(sourceVfo);
+        currentVfo = sourceVfo;
+        outputArea.textContent += `Copied frequency/mode from VFO ${sourceVfo === 0x00 ? 'A' : 'B'} to ${targetVfo === 0x00 ? 'A' : 'B'}\n`;
+    }
+
+
+       
+        // --- DVR Memory Commands (Command: 0x28) ---
+
+        /**
+         * Sends a CI-V command to play a specified DVR memory slot.
+         * @param {number} slotNumber - The DVR memory slot to play (e.g., 1, 2, 3, 4).
+         */
+        function playDvrMemory(slotNumber) {
+            if (slotNumber < 1 || slotNumber > 8) {
+                alert("Please select a valid DVR slot (1-4, or 1-8 for some models).");
+                return;
+            }
+            const command = [
+                ...CIV_PREAMBLE,
+                currentRadioAddress,
+                CONTROLLER_ADDRESS,
+                0x28, // DVR control command
+                0x00, // Sub-command for Play
+                slotNumber,
+                CIV_END
+            ];
+            sendCIVCommand(command);
+            outputArea.textContent += `Attempting to Play DVR Slot ${slotNumber}.\n`;
+        }
+
+
+
+
+
+
+        /**
+         * Sends a CI-V command to stop any active DVR operation (playback or recording).
+         */
+        function stopDvr() {
+            const command = [
+                ...CIV_PREAMBLE,
+                currentRadioAddress,
+                CONTROLLER_ADDRESS,
+                0x28, // DVR control command
+                0x00, // Sub-command for Stop
+                0x00, // Sub-command for Stop (some manuals show this, others don't, safer to include 0x00 as sub-command argument for stop)
+                CIV_END
+            ];
+            sendCIVCommand(command);
+            outputArea.textContent += `Attempting to Stop DVR operation.\n`;
+        }
+
+
+        // Disconnect from Serial Port
+        async function disconnectSerial() {
+            try {
+                readLoopRunning = false;
+
+                if (reader) {
+                    await reader.cancel();
+                    reader = null;
+                }
+
+                if (writer) {
+                    writer.releaseLock();
+                    writer = null;
+                }
+
+                if (port) {
+                    await port.close();
+                    port = null;
+                }
+
+                console.log("Serial port closed.");
+                outputArea.textContent += "Serial port disconnected.\n";
+                updateUIConnected(false); // Update UI to disconnected state, which also resets title
+            } catch (error) {
+                console.error("Error disconnecting serial port:", error);
+                outputArea.textContent += `Disconnect Error: ${error.message}\n`;
+            }
+        }
+        
+           //Check for duplicates
+           function checkDuplicateStatus(callsignToCheck) {
+            let hasContestDup = false;
+            let hasBandDup = false;
+
+            const bandToCheck = contestLogBandDisplay.textContent.trim().toUpperCase();
+            const upperCallsign = callsignToCheck.toUpperCase();
+            let matchingLineIndex = -1;
+        
+                    logbookEntries.forEach((entry, index) => {
+                if (entry.callsign.toUpperCase() === upperCallsign) {
+                    if (!hasContestDup) {
+                        hasContestDup = true;
+                        matchingLineIndex = index;
+                    }
+                    if (entry.band.toUpperCase() === bandToCheck) {
+                        hasBandDup = true;
+                        matchingLineIndex = index;
+                    }
+                }
+            });
+
+            // Update indicators
+            contestDupIndicator.style.backgroundColor = hasContestDup ? 'yellow' : 'green';
+            bandDupIndicator.style.backgroundColor = hasBandDup ? 'red' : 'green';
+
+            // Rebuild log display with highlighted line
+            highlightLogEntry(matchingLineIndex);
+        }
+
+   function highlightLogEntry(indexToHighlight) {
+    let displayContent = '';
+    if (isContestMode) {
+        displayContent += `<div><strong>Date,Time,Band,Mode,Callsign,RST_Sent,RST_Rcvd,My_Exchange,Their_Exchange</strong></div>`;
+    } else {
+        displayContent += `<div><strong>Date,Time,Band,Mode,Callsign,RST_Sent,RST_Rcvd,Name,QTH,Comments</strong></div>`;
+    }
+
+    logbookEntries.forEach((entry, index) => {
+        let line = '';
+        if (entry.type === 'contest') {
+            line = `${entry.date},${entry.time},${entry.band},${entry.mode},${entry.callsign},${entry.rstSent},${entry.rstRcvd},"${entry.myExchange}","${entry.theirExchange}"`;
+        } else {
+            line = `${entry.date},${entry.time},${entry.band},${entry.mode},${entry.callsign},${entry.rstSent},${entry.rstRcvd},"${entry.name}","${entry.qth}","${entry.comments}"`;
+        }
+
+        // Highlight the matched line with yellow background
+        if (index === indexToHighlight) {
+            line = `<div style="background-color: yellow; color: black;"><strong>${line}</strong></div>`;
+        } else {
+            line = `<div>${line}</div>`;
+        }
+
+        displayContent += line;
+    });
+
+    logbookDisplayArea.innerHTML = displayContent;
+    logbookDisplayArea.scrollTop = logbookDisplayArea.scrollHeight;
+}
+
+
+
+
+        function exportSerialOutput() {
+            const content = outputArea.textContent || '';  // Plain text from styled <div>
+            if (!content.trim()) {
+                alert("No serial output to export.");
+                return;
+            }
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const filename = `serial_output_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.txt`;
+
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        exportSerialButton.addEventListener('click', exportSerialOutput);
+
+   
+   
+   function autoSelectBandDropdown(freqHz) {
+    const bandSelect = document.getElementById('bandSelect');
+    const freqMHz = freqHz / 1_000_000;
+
+    for (let i = 0; i < bandSelect.options.length; i++) {
+        const optionMHz = parseFloat(bandSelect.options[i].value);
+        const delta = Math.abs(freqMHz - optionMHz);
+
+        if (delta < 0.3 || (freqMHz >= optionMHz && freqMHz <= optionMHz + 1)) {
+            bandSelect.selectedIndex = i;
+            return;
+        }
+    }
+
+    bandSelect.selectedIndex = -1; // Clear selection if not matched
+}
+
+   
+   function setBandFromDropdown() {
+    const bandSelect = document.getElementById('bandSelect');
+    const freqMHz = parseFloat(bandSelect.value);
+    const freqHz = Math.round(freqMHz * 1_000_000);
+    freqInput.value = freqHz;
+    updateFrequencyUI(freqHz);
+
+    outputArea.textContent += `Band selected: ${bandSelect.options[bandSelect.selectedIndex].text} (${freqHz} Hz).\n`;
+}
+
+document.getElementById('band').addEventListener('change', (e) => {
+  const band = e.target.value;
+  const freqInput = document.getElementById('frequency');
+
+  // Map of default center frequencies per band
+  const defaultFreqs = {
+    "160M": 1843,
+    "80M": 3600,
+    "60M": 5357,
+    "40M": 7125,
+    "30M": 10100,
+    "20M": 14150,
+    "17M": 18110,
+    "15M": 21200,
+    "12M": 24930,
+    "10M": 28300,
+    "6M": 50100,
+    "2M": 144100,
+    "70CM": 432000,
+    "23CM": 1240000
+  };
+
+  // Update frequency field and trigger any logic tied to it
+  if (defaultFreqs[band]) {
+     const newFreqHz = defaultFreqs[band];
+    freqInput.value = defaultFreqs[band];
+  //  freqInput.dispatchEvent(new Event('input'));  // 🔄 Triggers live update like manual entry
+   updateFrequencyUI(newFreqHz);  // ✅ this triggers full sync
+      syncBandFromFrequency();  // 🔄 Ensure the rest of the logic is triggered
+  }
+});
+
+ function syncBandFromFrequency() {
+  const freqInput = document.getElementById('frequency');
+  const bandInput = document.getElementById('band');
+
+  const freq = parseInt(freqInput.value, 10);
+  if (!isNaN(freq)) {
+    const band = getBandFromFrequency(freq);
+    if (band) {
+      bandInput.value = band;
+    }
+  }
+
+  // Add any additional preview updates here:
+  updateExchangePreview?.();
+}
+
+
+document.getElementById('frequency').addEventListener('input', syncBandFromFrequency);
+
+       
+    </script>
+
+<script>
+// Fix: update band select and frequency input to set frequency
+function setFrequency(freqHz) {
+    const freqBCD = toBCDArray(freqHz, 5);
+    const command = [
+        0xFE, 0xFE,
+        currentRadioAddress,
+        CONTROLLER_ADDRESS,
+        0x05,
+        ...freqBCD,
+        0xFD
+    ];
+    sendCivCommand(command);
+    outputArea.textContent += `Set frequency: ${freqHz} Hz\n`;
+}
+
+function toBCDArray(freq, length) {
+    let bcd = new Array(length).fill(0);
+    let digits = freq.toString().padStart(length * 2, '0').split('').reverse();
+    for (let i = 0; i < length; i++) {
+        const low = parseInt(digits[i * 2] || '0', 10);
+        const high = parseInt(digits[i * 2 + 1] || '0', 10);
+        bcd[i] = (high << 4) | low;
+    }
+    return bcd;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const bandSelect = document.getElementById('bandSelect');
+    const freqInput = document.getElementById('freqInput');
+
+    if (bandSelect) {
+        bandSelect.onchange = () => {
+            const freqMHz = parseFloat(bandSelect.value);
+            const freqHz = Math.round(freqMHz * 1_000_000);
+            freqInput.value = freqHz;
+            setFrequency(freqHz);
+        };
+
+        bandSelect.onwheel = (event) => {
+            event.preventDefault();
+            const options = Array.from(bandSelect.options);
+            let index = bandSelect.selectedIndex + (event.deltaY < 0 ? -1 : 1);
+            index = Math.max(0, Math.min(index, options.length - 1));
+            bandSelect.selectedIndex = index;
+            bandSelect.dispatchEvent(new Event('change'));
+        };
+    }
+
+    if (freqInput) {
+        freqInput.onchange = () => {
+            const freqHz = parseInt(freqInput.value, 10);
+            if (!isNaN(freqHz)) {
+                setFrequency(freqHz);
+            }
+        };
+
+        freqInput.onwheel = (event) => {
+            event.preventDefault();
+            let currentFreq = parseInt(freqInput.value, 10);
+            if (isNaN(currentFreq)) return;
+            let step = 100;
+            if (event.shiftKey) step = 1000;
+            if (event.altKey) step = 10000;
+            let newFreq = currentFreq + (event.deltaY > 0 ? -step : step);
+            freqInput.value = newFreq;
+            setFrequency(newFreq);
+        };
+    }
+});
+
+
+</script>
+
+</body>
+</html>
